@@ -1,0 +1,283 @@
+---
+title: 'Assignment 3'
+subtitle: "Data Science for Biodata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAbElEQVR4Xs2RQQrAMAgEfZgf7W9LAguybljJpR3wEse5JOL3ZObDb4x1loDhHbBOFU6i2Ddnw2KNiXcdAXygJlwE8OFVBHDgKrLgSInN4WMe9iXiqIVsTMjH7z/GhNTEibOxQswcYIWYOR/zAjBJfiXh3jZ6AAAAAElFTkSuQmCCmedical Informatics (BMIN5030)"
+format: 
+  html:
+    theme: lumen
+editor: visual
+embed-resources: true
+execute: 
+  warning: false
+---
+
+------------------------------------------------------------------------
+
+### Instructions
+
+-   Download the qmd version of this file
+-   Complete the questions below in RStudio using the qmd file as a template
+-   Replace the sample text after each question with your answers
+-   Save the qmd document as Assignment3\_*YOUR LAST NAME*.qmd
+-   Render the qmd file as an HTML
+-   Turn in completed Assignment3\_*YOUR LAST NAME*.html file in Canvas under Assignments -\> Assignment 3
+-   Your assignment **must** be in html format or it will not be graded
+-   Grades will be assigned according to point scheme below and computed as a percentage of total possible points
+-   Lateness policy: If an urgent and unforeseen circumstance comes up and you need an extension to turn in an assignment, please contact Anurag, Brielin, Chloe and Max as soon as possible. Unless there is an arrangement in place, late assignments will be scored as follows:
+    -   25% of total score if 1 day late
+    -   50% of total score if 2 days late
+    -   75% of total score if 3 days late
+    -   Assignment will not be graded if 4 or more days late
+-   DUE DATE: 10/1/25 11:59pm
+
+### Final Project - Topic
+
+Fork the [Final Project Repository](https://github.com/bcbg-bio/BMIN5030_Final_Project) to your GitHub account, and pull this forked repository as a new project on your local computer by using the *Project* menu in the upper-right-hand corner of RStudio, selecting a *New Project*, creating it via *Version Control* -\> *Git* -\> and entering your GitHub repository (remember to append `.git` to the copied `url`). You can work on your final project from your computer, and easily push updates to your GitHub account, where the final version will be saved. A *Git* tab will be available that you can use to *Pull*, *Commit*, and *Push* changes between your local version and that on GitHub without having to use the command line.
+
+1.  In 2-3 sentences, describe what question you will answer for your final project and what data you will use. There is a list of [publicly available data sources](https://github.com/bcbg-bio/BMIN5030/blob/master/public_datasets.md) on GitHub that you can look through if you are having difficulty identifying a dataset to use. If you'd like help to pick a topic, please let Blanca know soon. *(2 points)*
+
+> I will use the Survey of Health, Aging and Retirement in Europe (SHARE) or China Health and Retirement Longitudinal Study (CHARLS) to explore the longitudinal association between ratio of triglycerides to HDL-C and cognitive impairment.
+
+2.  What two faculty/staff (name, title, division/department) have you met or are planning to meet to discuss your project? *(2 points)*
+
+> John Holmes, PhD, Professor of Medical Informatics in Epidemiology
+>
+> Justine Shults, PhD, Professor of Biostatistics
+
+### Cleaning and Transforming data, Descriptive Statistics and Regression
+
+3.  Install and load the [`nycflights13`](https://nycflights13.tidyverse.org) package to do this problem. This package includes the `flights` tibble, which contains information on 336,776 flights that departed from New York City in 2013. Use `dplyr` to answer the following questions by inserting code below each bullet to provide the answer directly. Assume that the three airports with departing flights (EWR, JFK and LGA) are the ones with flights originating from NYC. To find out more about the variables available, it is helpful to consult the Reference Manual you can find in the [CRAN entry](https://cloud.r-project.org/web/packages/nycflights13/index.html) for the package. *(10 points)*
+
+    -   How many flights had Philadelphia International Airport (PHL) as destination? Which carrier had the most departing flights to Philadelphia? Note: you can look up the carriers by name using the `airlines` tibble.
+
+    ```{r}
+    library(nycflights13)
+    library(dplyr)
+    df <- flights
+    phl_flights <- df %>%
+      filter(dest == "PHL")
+    N_phl_flights <- nrow(phl_flights)
+    N_phl_flights
+
+    phl_flights %>%
+      group_by(carrier) %>%
+      summarise(flight_count = n()) %>%
+      left_join(airlines, by = "carrier") %>%
+      arrange(desc(flight_count)) %>%
+      select(name, flight_count) %>%
+      head(1)
+
+    ```
+
+    -   Of the flights that departed from JFK with scheduled departure between 0500hr and 2000hr, how many had destinations beginning or ending with the letter C? Which carriers flew these flights, and how many of these flights corresponded to each carrier?
+
+    ```{r}
+    jfk_flights <- df %>%
+      filter(origin == "JFK",
+             sched_dep_time >= 500 & sched_dep_time <= 2000,
+             grepl("(^C|C$)", dest))
+
+    jfk_flights %>%
+      count(carrier, sort = T) %>%
+      left_join(airlines, by = "carrier") %>%
+      select(name, n)
+    ```
+
+    -   List the top 10 destinations based on having the greatest mean departure delay (it is acceptable to remove missing values from this calculation), along with the number of flights to each of these destinations. Next, list the destination that Frontier Airlines had the most flights to in a given month, along with the corresponding number of flights?
+
+    ```{r}
+    df %>%
+      group_by(dest) %>%
+      summarise(
+        mean_dep_delay = mean(dep_delay, na.rm = TRUE),
+        num_flights = n()
+      ) %>%
+      arrange(desc(mean_dep_delay)) %>%
+      head(10)
+
+    df %>%
+      filter(carrier == "F9") %>%
+      group_by(month, dest) %>%
+      summarise(flight_count = n(), .groups = 'drop') %>%
+      arrange(desc(flight_count)) %>%
+      head(1)
+    ```
+
+    -   Is there a linear relationship between the departure delay (dep_delay) and distance of the flight (distance)? The answer should show a plot and use one sentence to address this question qualitatively. That is, there is no need to create a model to formally evaluate a relationship.
+
+        There is no significant linear relationship between flight distance and departure delay.
+
+    ```{r}
+    library(ggplot2)
+
+    df %>%
+      ggplot(aes(distance, dep_delay)) +
+      geom_point(alpha = 0.15, size = 1) +
+      geom_smooth(method = "lm", se = FALSE) +
+      labs(title = "Departure delay vs. distance",
+           x = "Distance (miles)", y = "Departure delay (minutes)")
+    ```
+
+    -   Was the median arrival delay (arr_delay) related to the time of departure (dep_time)? The answer should show a plot and use two sentences to address this question qualitatively.
+
+    The median arrival delay clearly varies with scheduled departure time. Flights leaving very early in the morning or late at night tend to have higher median delays, while mid-day flights show less variability and lower delays.
+
+```{r}
+df %>%
+  ggplot(aes(dep_time, arr_delay)) +
+  stat_summary(fun = median, geom = "line") +
+  labs(title = "Median arrival delay by scheduled departure time",
+       x = "Scheduled departure time", y = "Median arrival delay")
+```
+
+1.  Load the RDS file located [here](https://github.com/bcbg-bio/BMIN5030/blob/master/DataFiles/brfss2022_cleaned.rds) which contains the a cleaned subset of the [2022 BRFSS dataset](https://www.cdc.gov/brfss/annual_data/annual_2022.html) as described in this [data dictionary](https://github.com/bcbg-bio/BMIN5030/blob/master/DataFiles/BRFSS2022_DataDictionary.md) to answer the following questions. We will explore some of the data and create some regression models. NOTE: We are analyzing raw BRFSS data without taking the survey design into account, and thus, our results are not representative of the US population sampled. *(10 points)*
+
+-   Load the dataset using `read_rds()`, while recalling that the link used must point to the *raw* data in GitHub. How many people reported having tested negative and positive to COVID as contained in the `covidpos` variable? How many people reported ever having had a depressive disorder as contained in the `depression` variable? What were the possible responses to the `genhealth` variable, which corresponded to the question "Would you say that in general your health is:...", and how many responses were there to each level?
+
+```{r}
+data <- readRDS("C:/Users/Richard/Downloads/brfss2022_cleaned.rds")
+data %>% count(covidpos)
+data %>% count(depression)
+data %>% count(genhealth)
+```
+
+-   Ignore the missing responses to any variable that is being considered while you answer the following. Do you notice any trends in the distribution of responses to `covidpos` according to `race` or `income`? What about for `genhealth`? Respond by using plots and a few sentences. There is no need to create any models.
+
+    **Across racial groups, the proportion testing positive for COVID is fairly similar, generally around 25–35%.**
+
+    **Higher income is associated with a higher proportion testing positive.**
+
+    **People reporting poorer self-rated health (“Poor” or “Fair”) have higher positive proportions.**
+
+```{r}
+data %>%
+  filter(!is.na(covidpos), !is.na(race)) %>%
+  group_by(race, covidpos) %>%
+  summarise(n = n(), .groups = "drop_last") %>%
+  mutate(pct = n / sum(n)) %>%
+  ggplot(aes(race, pct, fill = covidpos)) +
+  geom_col(position = "fill") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "COVID test result distribution by race",
+       x = "Race", y = "Share within race")
+
+data %>%
+  filter(!is.na(covidpos), !is.na(income)) %>%
+  group_by(income, covidpos) %>%
+  summarise(n = n(), .groups = "drop_last") %>%
+  mutate(pct = n / sum(n)) %>%
+  ggplot(aes(income, pct, fill = covidpos)) +
+  geom_col(position = "fill") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "COVID test result distribution by income",
+       x = "Income", y = "Share within income")
+
+data %>%
+  filter(!is.na(covidpos), !is.na(genhealth)) %>%
+  group_by(genhealth, covidpos) %>%
+  summarise(n = n(), .groups = "drop_last") %>%
+  mutate(pct = n / sum(n)) %>%
+  ggplot(aes(genhealth, pct, fill = covidpos)) +
+  geom_col(position = "fill") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "COVID test result distribution by general health",
+       x = "General health", y = "Share within General health")
+
+```
+
+-   Perform bivariate analysis for the `race`, `sex`, `age`, `sleep` and `exercise` variables as predictors and `depression` as outcome. Do not relevel or transform variables. Include appropriate plots that look at the pairwise relationships between the outcomes and each predictor and create regression models to model the bivariate relationship between each outcome and each predictor. Which of the variables are associated with `depression`?
+
+    All variables are associated with depression.
+
+```{r}
+data %>%
+  filter(!is.na(depression), !is.na(race)) %>%
+  ggplot(aes(y = race, fill = depression)) +
+  geom_bar(position = "fill") +
+  labs(x = "Proportion", y = "Race", fill = "Depression")
+
+dep_race <- glm(depression ~ race, data = data, family = "binomial")
+summary(dep_race)
+
+data %>%
+  filter(!is.na(depression), !is.na(sex)) %>%
+  ggplot(aes(y = sex, fill = depression)) +
+  geom_bar(position = "fill") +
+  labs(x = "Proportion", y = "Sex", fill = "Depression")
+
+dep_sex <- glm(depression ~ sex, data = data, family = "binomial")
+summary(dep_sex)
+
+age_levels <- c("18to24", "25to34", "35to44", "45to54", "55to64", "65plus")
+data_cleaned <- data %>%
+  filter(!is.na(age), !is.na(depression)) %>%
+  mutate(age = factor(age, levels = age_levels, ordered = TRUE))
+ggplot(data_cleaned, aes(y = age, fill = depression)) +
+  geom_bar(position = "fill") + 
+  scale_x_continuous(labels = scales::percent) + 
+  labs(title = "Proportion of Depression by Age Group",
+       y = "Age Group",
+       x = "Proportion",
+       fill = "Depression") +
+  theme_minimal()
+
+dep_age <- glm(depression ~ age, data = data, family = "binomial")
+summary(dep_age)
+
+data %>%
+  filter(!is.na(depression), !is.na(sleep)) %>%
+  ggplot(aes(x = depression, y = sleep)) +
+  geom_boxplot() +
+  labs(x = "Depression", y = "Hours of Sleep")
+
+dep_sleep <- glm(depression ~ sleep, data = data, family = "binomial")
+summary(dep_sleep)
+
+data %>%
+  filter(!is.na(depression), !is.na(exercise)) %>%
+  ggplot(aes(y = exercise, fill = depression)) +
+  geom_bar(position = "fill") +
+  labs(x = "Proportion", y = "exercise", fill = "Depression")
+
+dep_exercise <- glm(depression ~ exercise, data = data, family = "binomial")
+summary(dep_exercise)
+```
+
+-   Create a multivariable regression model for `depression` using `sex`, `race`, `age`, `sleep`, and `exercise` as predictors. What variables are significantly associated with `depression` in the combined model? Are there substantial differences compared to the bivariate models? What does this indicate?
+
+    All variables are significantly associated with depression in the combined model. It suggests that each of these factors has an independent association with depression that would not be explained away by the other variables.
+
+```{r}
+dep_multivariable <- glm(depression ~ sex + race + exercise + age + sleep + exercise, data = data, family = "binomial")
+summary(dep_multivariable)
+```
+
+-   Consider a new multivariable model in which `age`, `race`, and an interaction term between them are predictors of `depression`. Is there any evidence of effect modification? Create a descriptive plot of the data distributions that helps to visualize why there is or is not effect modification. Hint: use `facet_wrap()` to help visualize the three variables involved.
+
+    Yes, the significant p-values for the interaction terms provide strong evidence of effect modification, indicating that the relationship between age and depression depends on an individual's race.
+
+```{r}
+interaction_model <- glm(depression ~ age + race + age * race,
+                         data = data,
+                         family = "binomial")
+
+summary(interaction_model)
+
+data %>%
+  filter(!is.na(depression), !is.na(age), !is.na(race)) %>%
+  ggplot(aes(x = age, fill = depression)) +
+  geom_bar(position = "fill") +
+  facet_wrap(~ race) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Proportion of Depression by Age Group, Faceted by Race",
+    subtitle = "Visualizing the interaction between Age and Race",
+    x = "Age Group",
+    y = "Proportion",
+    fill = "Depression"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
