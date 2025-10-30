@@ -8,19 +8,21 @@ number-sections: true
 embed-resources: true
 ---
 
-------------------------------------------------------------------------
+# Association Between Ratio of Triglycerides to HDL-C and Cognitive Impairment: A Longitudinal Population-Based Analysis and Mendelian Randomization Study
 
-Use this template to complete your project throughout the course. Your Final Project presentation will be based on the contents of this document. Replace the title/name above and text below with your own, but keep the headers. Feel free to change the theme and other display settings, although this is not required.
+------------------------------------------------------------------------
 
 ## Overview {#sec-overview}
 
-Give a brief a description of your project and its goal(s), what data you are using to complete it, and what two faculty/staff in different fields you have spoken to about your project with a brief summary of what you learned from each person. Include a link to your final project GitHub repository.
+> This project investigates whether the triglyceride to high-density lipoprotein cholesterol (TG/HDL-C) ratio is longitudinally and causally associated with cognitive impairment in older adults. Using population-based data from the Survey of Health, Ageing and Retirement in Europe (SHARE) and genetic data from genome-wide association studies (GWAS), the study applies hierarchical linear regression and Mendelian randomization analyses to assess both observational and causal relationships. The goal is to identify lipid-related metabolic pathways and insulin resistance biomarkers as potential modifiable targets for preventing cognitive decline.
 
 ## Introduction {#sec-introduction}
 
-Describe the problem addressed, its significance, and some background to motivate the problem. This should extend what is in the @sec-overview.
+The rapid aging of the global population is driven by declining fertility rates and increasing life expectancy. Among aging-related conditions, cognitive impairment, including mild cognitive impairment (MCI) and dementia, stands out as one of the most significant. Individuals with cognitive impairment often experience comorbid mental health disorders, such as depression, anxiety, and insomnia, as well as physical illnesses like diabetes and cardiovascular diseases, leading to a reduced quality of life. In addition, MCI poses a risk not only for progression to dementia but also for substantial psychiatric conditions in both patients and caregivers. The economic burden and medical complications associated with MCI are significantly higher than those of healthy individuals. Therefore, early detection are crucial in preventing or mitigating these devastating outcomes.
 
-Explain why your problem is interdisciplinary, what fields can contribute to its understanding, and incorporate background related to what you learned from meeting with faculty/staff.
+The TG/HDL-C ratio is a key marker of metabolic syndrome and insulin resistance and dyslipidemia, which has been widely linked to metabolic syndrome, insulin resistance, and neurodegeneration, but the direction and causality of this association remain unclear. Understanding whether an elevated TG/HDL-C ratio contributes to cognitive decline could inform early detection and preventive interventions for at-risk older adults, providing valuable insight into modifiable metabolic risk factors for dementia.
+
+This study aims to explore the longitudinal association between changes in the TG/HDL-C ratio and cognitive function, a relationship that may inform targeted lifestyle or metabolic-syndrome interventions to improve outcomes, integrating approaches from epidemiology, biostatistics, and genetic epidemiology. The data used in this study is Survey of Health, Ageing and Retirement in Europe (SHARE) and Genome-wide association studies (GWAS) data from the European population. We used hierarchical generalized linear regression to explore the longitudinal association between the TG/HDL-C ratio and cognitive decline and MCI. Based on GWAS, this study further verified the potential causal relationship between the two using Mendelian randomization. To conclude, this study further investigated the effect of TG/HDL-C on different dimensions of cognitive function, providing new causal evidence for the relationship between the TG/HDL-C ratio and cognitive function, so that targeted interventions for the elderly can be more precisely implemented.
 
 ## Methods {#sec-methods}
 
