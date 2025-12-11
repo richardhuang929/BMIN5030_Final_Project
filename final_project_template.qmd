@@ -82,62 +82,62 @@ dat <- dat %>%
     ),
 
     # Sex (2 = female, 1 = male)
-    sex = factor(if_else(gender == 1, "Male", "Female")),
+    Gender = factor(if_else(gender == 1, "Male", "Female")),
 
     # Education (1 low, 2 medium, 3 high)
-    edu_cat = factor(
+      Education = factor(
       edu,
       levels = c(1, 2, 3),
       labels = c("Elementary or below", "Middle/High school", "Higher education")
     ),
 
     # Marital (1 married, 2 single/other)
-    marital_cat = factor(
+    Marital_Status = factor(
       marital,
       levels = c(1, 2),
       labels = c("Married", "Single/Other")
     ),
 
     # Work status (1 retired, 2 employed, 3 other)
-    work_cat = factor(
+    Working_Status = factor(
       work,
       levels = c(1, 2, 3),
       labels = c("Retired", "Employed", "Unemployed/Other")
     ),
 
     # Smoking (1 yes, 5 no)
-    smoke_cat = factor(
+    Smoking = factor(
       smoke,
       levels = c(1, 5),
       labels = c("Ever smoker", "Never smoker")
     ),
 
     # Alcohol (1 ≥3/week, 2 >1/month, 3 <1/month or never)
-    alcohol_cat = factor(
+    Alcohol_Consumption = factor(
       alcohol,
       levels = c(1, 2, 3),
       labels = c("≥3/week", ">1/month", "<1/month or never")
     ),
 
     # Exercise (1 >1/week, 2 once/week, 3 1–3/month, 4 hardly/never)
-    exercise_cat = factor(
+    Excercise = factor(
       exercise,
       levels = c(1, 2, 3, 4),
       labels = c(">1/week", "Once/week", "1–3/month", "Hardly ever/Never")
     ),
 
     # ADL: 1 = any limitation
-    adl_lim = factor(adl, levels = c(0, 1), labels = c("No", "Yes")),
+    ADL = factor(adl, levels = c(0, 1), labels = c("No", "Yes")),
 
     # Chronic diseases: 0,1,>=2
-    cd_cat = factor(
+    Comorbidities = factor(
       cd,
       levels = c(0, 1, 2),
       labels = c("0", "1", "≥2")
     ),
 
     # Depression: 1 = yes
-    dep_cat = factor(depression, levels = c(0, 1), labels = c("No", "Yes")),
+    Depression = factor(depression, levels = c(0, 1), labels = c("No", "Yes")),
 
     # Country-level vars as numeric
     HAQ = as.numeric(HAQ),
@@ -151,20 +151,17 @@ dat <- dat %>%
 ```
 
 ```{r}
-baseline_vars <- c(
-  "age", "sex", "edu_cat", "marital_cat", "work_cat",
-  "smoke_cat", "alcohol_cat", "exercise_cat",
-  "bmi", "adl_lim", "dep_cat", "cd_cat", "HAQ", "GDP"
-)
+baseline_vars <- c( "age", "Gender", "Education", "Marital_Status", "Working_Status", "Smoking", "Alcohol_Consumption", "Excercise", "bmi", "ADL", "Depression", "Comorbidities", "HAQ", "GDP" )
 
 tbl_baseline <- dat %>%
   select(tghdl_q, all_of(baseline_vars)) %>%
   tbl_summary(
     by = tghdl_q,
     statistic = list(
-      all_continuous() ~ "{mean} ({sd})",
+      all_continuous() ~ "{mean} \u00b1 {sd}",   # 这里不用 .2f
       all_categorical() ~ "{n} ({p}%)"
     ),
+    digits = all_continuous() ~ 2,              # 在这里控制小数位
     missing = "no"
   ) %>%
   add_p(test = all_continuous() ~ "kruskal.test") %>%
@@ -172,6 +169,7 @@ tbl_baseline <- dat %>%
   modify_spanning_header(all_stat_cols() ~ "TG/HDL-C quartile")
 
 tbl_baseline
+
 ```
 
 ```{r}
@@ -332,11 +330,10 @@ format_est_ci <- function(est, lwr, upr, p, digits = 3) {
 ## ---- table3_models --------------------------------------------------------
 # Model formula suffix for adjustment sets
 suffix_m1 <- ""
-suffix_m2 <- "+ age + sex + edu_cat + work_cat + marital_cat"
+suffix_m2 <- "+ age + Gender + Education + Marital_Status + Working_Status" 
 suffix_m3 <- paste(
   suffix_m2,
-  "+ bmi + smoke_cat + alcohol_cat + exercise_cat +",
-  "adl_lim + cd_cat + dep_cat"
+  " + Smoking + Alcohol_Consumption + Excercise + bmi + ADL + Depression + Comorbidities"
 )
 suffix_m4 <- paste(
   suffix_m3,
@@ -474,15 +471,21 @@ cog_labels_long <- tibble::tribble(
 
 # 3) Model suffixes (same adjustment sets as Table 3)
 suffix_m1 <- ""
-suffix_m2 <- "+ age + sex + edu_cat + work_cat + marital_cat"
+suffix_m2 <- "+ age + Gender + Education + Marital_Status + Working_Status" 
 suffix_m3 <- paste(
   suffix_m2,
-  "+ bmi + smoke_cat + alcohol_cat + exercise_cat +",
-  "adl_lim + cd_cat + dep_cat"
+  " + Smoking + Alcohol_Consumption + Excercise + bmi + ADL + Depression + Comorbidities"
 )
 suffix_m4 <- paste(
   suffix_m3,
   "+ HAQ + GDP"
+)
+
+model_suffixes <- list(
+  "Model 1" = suffix_m1,
+  "Model 2" = suffix_m2,
+  "Model 3" = suffix_m3,
+  "Model 4" = suffix_m4
 )
 
 model_suffixes <- list(
@@ -516,9 +519,9 @@ make_table4_for_domain <- function(domain_name, label) {
       dat %>%
         select(
           mergeid, tghdl_cont, tghdl_q_paper,
-          age, sex, edu_cat, marital_cat, work_cat,
-          bmi, smoke_cat, alcohol_cat, exercise_cat,
-          adl_lim, cd_cat, dep_cat, HAQ, GDP
+          age, Gender, Education, Marital_Status, Working_Status, Smoking
+          ,Alcohol_Consumption, Excercise, bmi, ADL, Depression, Comorbidities, HAQ
+          , GDP 
         ),
       by = "mergeid"
     ) %>%
@@ -721,21 +724,14 @@ knots_tg <- quantile(
 
 # 1) Linear model (for P for linearity: overall linear association)
 fit_lin <- lrm(
-  cf8bi ~ tghdl_cont +
-    age + sex + edu_cat + marital_cat +
-    bmi + smoke_cat + alcohol_cat + exercise_cat +
-    adl_lim + cd_cat + dep_cat +
-    HAQ + GDP,
+  cf8bi ~ tghdl_cont + age + Gender + Education + Marital_Status + Working_Status + Smoking + Alcohol_Consumption + Excercise + bmi + ADL + Depression + Comorbidities + HAQ + GDP, 
   data = dat_6_8
 )
 
 # 2) Restricted cubic spline model
 fit_rcs <- lrm(
   cf8bi ~ rcs(tghdl_cont, knots_tg) +
-    age + sex + edu_cat + marital_cat +
-    bmi + smoke_cat + alcohol_cat + exercise_cat +
-    adl_lim + cd_cat + dep_cat +
-    HAQ + GDP,
+    age + Gender + Education + Marital_Status + Working_Status + Smoking + Alcohol_Consumption + Excercise + bmi + ADL + Depression + Comorbidities + HAQ + GDP,
   data = dat_6_8
 )
 
@@ -803,8 +799,8 @@ dat_6_8 <- dat_6_8 %>%
     age_group = factor(age_group, levels = c("<75", "≥75")),
 
     # Ensure sex and education are factors
-    sex     = factor(sex),
-    edu_cat = factor(edu_cat),
+    sex     = factor(Gender),
+    edu_cat = factor(Education),
 
     # BMI group: <25, 25–29.9, >=30
     bmi_group = case_when(
@@ -839,10 +835,7 @@ format_p <- function(p) {
 
 # 4) Fully adjusted covariates (exclude subgroup itself when stratifying)
 base_adjust_vars <- c(
-  "age", "sex", "edu_cat", "work_cat", "marital_cat",
-  "bmi", "smoke_cat", "alcohol_cat", "exercise_cat",
-  "adl_lim", "cd_cat", "dep_cat",
-  "HAQ", "GDP"
+"age", "Gender", "Education", "Marital_Status", "Working_Status", "Smoking", "Alcohol_Consumption", "Excercise", "bmi", "ADL", "Depression", "Comorbidities", "HAQ", "GDP"
 )
 
 # 5) Function to run subgroup analysis + p for interaction
@@ -969,9 +962,9 @@ sub_age <- run_subgroup_with_interaction(
 # Sex, adjust for all except sex
 sub_sex <- run_subgroup_with_interaction(
   data         = dat_6_8,
-  subgroup_var = "sex",
-  subgroup_label = "Sex",
-  adjust_vars  = setdiff(base_adjust_vars, "sex")
+  subgroup_var = "Gender",
+  subgroup_label = "Gender",
+  adjust_vars  = setdiff(base_adjust_vars, "Gender")
 )
 
 # BMI group, adjust for all except BMI
@@ -985,9 +978,9 @@ sub_bmi <- run_subgroup_with_interaction(
 # Education, adjust for all except edu_cat
 sub_edu <- run_subgroup_with_interaction(
   data         = dat_6_8,
-  subgroup_var = "edu_cat",
+  subgroup_var = "Education",
   subgroup_label = "Education",
-  adjust_vars  = setdiff(base_adjust_vars, "edu_cat")
+  adjust_vars  = setdiff(base_adjust_vars, "Education")
 )
 
 # 7) Combine all subgroup results into one table
