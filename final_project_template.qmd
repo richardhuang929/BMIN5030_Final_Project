@@ -73,7 +73,6 @@ dat <- read_excel("C:/Users/Richard/Desktop/wave 678.xlsx")
 ```{r}
 dat <- dat %>%
   mutate(
-    # TG/HDL continuous & quartiles
     tghdl_cont = tghdl1,
     tghdl_q = factor(
       tghdl1_quartile,
@@ -81,7 +80,7 @@ dat <- dat %>%
       labels = c("Q1 (lowest)", "Q2", "Q3", "Q4 (highest)")
     ),
 
-    # Sex (2 = female, 1 = male)
+    # Gender (2 = female, 1 = male)
     Gender = factor(if_else(gender == 1, "Male", "Female")),
 
     # Education (1 low, 2 medium, 3 high)
@@ -188,10 +187,6 @@ dat <- dat %>%
     )
   )
 
-# Optional: check group sizes (should be roughly equal)
-table(dat$tghdl_q_table2, useNA = "ifany")
-
-# 2) Cognitive variables and their row labels for Table 2
 cog_vars <- tibble::tribble(
   ~var,              ~label,
   "cf6",             "Total score",
@@ -202,17 +197,10 @@ cog_vars <- tibble::tribble(
   "numeracy_6",      "Numeracy"
 )
 
-# 3) For each cognitive domain, compute:
-#    - Overall mean ± SD
-#    - Mean ± SD for each TG/HDL-C quartile
-#    - Kruskal–Wallis test (χ² statistic and p-value with significance stars)
 table2_list <- lapply(seq_len(nrow(cog_vars)), function(i) {
-
-  # Extract variable name and descriptive label
   var_name  <- cog_vars$var[i]
   row_label <- cog_vars$label[i]
 
-  # Overall mean and SD
   m_total <- mean(dat[[var_name]], na.rm = TRUE)
   sd_total <- sd(dat[[var_name]], na.rm = TRUE)
   total_str <- sprintf("%.2f ± %.2f", m_total, sd_total)
@@ -227,14 +215,10 @@ table2_list <- lapply(seq_len(nrow(cog_vars)), function(i) {
     ) %>%
     mutate(ms = sprintf("%.2f ± %.2f", m, s))
 
-  # Ensure order matches factor levels
   q_levels <- levels(dat$tghdl_q_table2)
   q_vals <- summ_q$ms[match(q_levels, as.character(summ_q$tghdl_q_table2))]
-
-  # Kruskal–Wallis H test (vector-based, no formula evaluation)
   kw <- kruskal.test(dat[[var_name]] ~ dat$tghdl_q_table2)
 
-  # Format p-value with significance stars
   p_raw <- kw$p.value
   p_str <- if (p_raw < 0.001) {
     "<0.001***"
@@ -245,8 +229,7 @@ table2_list <- lapply(seq_len(nrow(cog_vars)), function(i) {
   } else {
     sprintf("%.4f", p_raw)
   }
-
-  # Return one row of the table
+  
   tibble::tibble(
     `Cognitive score`      = row_label,
     `Total (M ± SD)`       = total_str,
@@ -258,10 +241,8 @@ table2_list <- lapply(seq_len(nrow(cog_vars)), function(i) {
   )
 })
 
-# Combine all rows
 table2 <- bind_rows(table2_list)
 
-# 4) Print Table 2 in publication-ready format
 kable(
   table2,
   caption = "Table 2. Association between TG/HDL-C and total cognitive score and five cognitive domains (Mean ± SD) in SHARE Wave 6 (2015)",
@@ -270,7 +251,6 @@ kable(
 ```
 
 ```{r}
-## ---- helper-formulas ------------------------------------------------------
 # Model 1: unadjusted
 dat <- dat %>%
   mutate(
@@ -288,7 +268,6 @@ dat <- dat %>%
     )
   )
 
-# Map variable names to row labels (same as in the paper)
 cog_labels_wave6 <- tibble::tribble(
   ~var,              ~label,
   "cf6",             "Total score",
@@ -309,7 +288,6 @@ cog_labels_long <- tibble::tribble(
   "numeracy",        "Numeracy"
 )
 
-# Helper: format estimate, CI and significance stars
 format_est_ci <- function(est, lwr, upr, p, digits = 3) {
   stars <- if (p < 0.001) {
     "***"
@@ -326,7 +304,6 @@ format_est_ci <- function(est, lwr, upr, p, digits = 3) {
 ```
 
 ```{r}
-## ---- table3_models --------------------------------------------------------
 # Model formula suffix for adjustment sets
 suffix_m1 <- ""
 suffix_m2 <- "+ age + Gender + Education + Marital_Status + Working_Status" 
@@ -348,7 +325,6 @@ model_suffixes <- list(
 ```
 
 ```{r}
-## ---- table3_build, message=FALSE, warning=FALSE ---------------------------
 make_table3_for_outcome <- function(var_name, label) {
   df <- dat %>%
     drop_na(.data[[var_name]], tghdl_cont, tghdl_q_paper)
@@ -438,14 +414,11 @@ cog_long <- dat %>%
   pivot_longer(
     cols = -mergeid,
     names_to   = c("domain", "wave"),
-    # Regex handles both "cf6" and "orientation_6"
-    # (.*?)(?:_|)([678])
     names_pattern = "(.*?)(?:_|)([678])",
     values_to  = "score"
   ) %>%
   mutate(
     wave = as.integer(wave),
-    # approximate follow-up time in years: Wave 6 = 0, Wave 7 = 2, Wave 8 = 4
     time = case_when(
       wave == 6 ~ 0,
       wave == 7 ~ 2,
@@ -454,10 +427,6 @@ cog_long <- dat %>%
     )
   )
 
-# Optional sanity check: you should see 6 domains x 3 waves
-# count(cog_long, domain, wave)
-
-# 2) Labels for each domain (must match the "domain" values above)
 cog_labels_long <- tibble::tribble(
   ~domain,           ~label,
   "cf",              "Total score",
@@ -468,7 +437,6 @@ cog_labels_long <- tibble::tribble(
   "numeracy",        "Numeracy"
 )
 
-# 3) Model suffixes (same adjustment sets as Table 3)
 suffix_m1 <- ""
 suffix_m2 <- "+ age + Gender + Education + Marital_Status + Working_Status" 
 suffix_m3 <- paste(
@@ -494,7 +462,6 @@ model_suffixes <- list(
   "Model 4" = suffix_m4
 )
 
-# 4) Helper: format estimate, CI and significance stars
 format_est_ci <- function(est, lwr, upr, p, digits = 3) {
   stars <- if (p < 0.001) {
     "***"
@@ -509,9 +476,7 @@ format_est_ci <- function(est, lwr, upr, p, digits = 3) {
           digits, est, digits, lwr, digits, upr, stars)
 }
 
-# 5) Function to fit mixed models and extract rows for one cognitive domain
 make_table4_for_domain <- function(domain_name, label) {
-  # Merge long cognitive data with baseline covariates and TG/HDL-C
   df <- cog_long %>%
     filter(domain == domain_name) %>%
     left_join(
@@ -526,7 +491,6 @@ make_table4_for_domain <- function(domain_name, label) {
     ) %>%
     drop_na(score, tghdl_cont, tghdl_q_paper)
 
-  # If for some reason there are no valid rows, return an empty tibble
   if (nrow(df) == 0) {
     return(tibble())
   }
@@ -568,7 +532,7 @@ make_table4_for_domain <- function(domain_name, label) {
         conf.int = TRUE
       ) %>%
         filter(grepl("^tghdl_q_paper", term)) %>%
-        arrange(term)   # Q2, Q3, Q4
+        arrange(term) 
 
       q_str <- pmap_chr(
         list(q_rows$estimate, q_rows$conf.low, q_rows$conf.high, q_rows$p.value),
@@ -588,7 +552,6 @@ make_table4_for_domain <- function(domain_name, label) {
   )
 }
 
-# 6) Build full Table 4 by stacking all domains
 table4 <- map_dfr(
   seq_len(nrow(cog_labels_long)),
   function(i) {
@@ -599,7 +562,6 @@ table4 <- map_dfr(
   }
 )
 
-# 7) Print Table 4 (same structure as in the paper, no test-statistics column)
 kable(
   table4,
   caption = "Table 4. Longitudinal association between baseline TG/HDL-C ratio and cognitive score from Wave 6 to Wave 8",
@@ -609,7 +571,6 @@ kable(
 ```
 
 ```{r}
-## ---- table5_subsets -------------------------------------------------------
 # Wave 6 -> Wave 7 (no impairment at baseline, non-missing Wave 7)
 dat_6_7 <- dat %>%
   filter(cf6bi == 0 & !is.na(cf7bi))
@@ -618,7 +579,6 @@ dat_6_7 <- dat %>%
 dat_6_8 <- dat %>%
   filter(cf6bi == 0 & !is.na(cf8bi))
 
-## ---- table5_build, message=FALSE, warning=FALSE ---------------------------
 make_table5_block <- function(df, outcome_name, wave_label) {
 
   purrr::map_dfr(
@@ -626,7 +586,6 @@ make_table5_block <- function(df, outcome_name, wave_label) {
     function(m_name) {
       suf <- model_suffixes[[m_name]]
 
-      # Per-unit TG/HDL-C model
       f_cont <- as.formula(
         paste(outcome_name, "~ tghdl_cont", suf)
       )
@@ -651,7 +610,6 @@ make_table5_block <- function(df, outcome_name, wave_label) {
         digits = 2
       )
 
-      # Quartile model
       f_q <- as.formula(
         paste(outcome_name, "~ tghdl_q_paper", suf)
       )
@@ -721,30 +679,25 @@ knots_tg <- quantile(
   na.rm = TRUE
 )
 
-# 1) Linear model (for P for linearity: overall linear association)
 fit_lin <- lrm(
   cf8bi ~ tghdl_cont + age + Gender + Education + Marital_Status + Working_Status + Smoking + Alcohol_Consumption + Excercise + bmi + ADL + Depression + Comorbidities + HAQ + GDP, 
   data = dat_6_8
 )
 
-# 2) Restricted cubic spline model
 fit_rcs <- lrm(
   cf8bi ~ rcs(tghdl_cont, knots_tg) +
     age + Gender + Education + Marital_Status + Working_Status + Smoking + Alcohol_Consumption + Excercise + bmi + ADL + Depression + Comorbidities + HAQ + GDP,
   data = dat_6_8
 )
 
-# 3) P for linearity: Wald P for tghdl_cont from the linear model
 anova_lin <- anova(fit_lin)
 p_linear  <- anova_lin["tghdl_cont", "P"]
 
-# 4) P for non-linearity: "Nonlinear" row from anova(fit_rcs)
 anova_rcs <- anova(fit_rcs)
-# In rms, rcs() produces a "Nonlinear" row for the spline part
+
 row_nl <- grep("Nonlinear", rownames(anova_rcs), value = TRUE)
 p_nonlinear <- anova_rcs[row_nl, "P"]
 
-# Helper to format p-values
 format_p <- function(p) {
   if (is.na(p)) return("NA")
   if (p < 0.001) "<0.001" else sprintf("%.3f", p)
@@ -753,7 +706,6 @@ format_p <- function(p) {
 p_linear_txt    <- paste0("P for linearity = ", format_p(p_linear))
 p_nonlinear_txt <- paste0("P for non-linearity = ", format_p(p_nonlinear))
 
-# 5) Predict and plot OR curve across TG/HDL-C distribution
 pred_rcs <- Predict(fit_rcs, tghdl_cont, ref.zero = TRUE, fun = exp)
 
 rcs_plot <- as_tibble(pred_rcs) %>%
@@ -774,7 +726,6 @@ rcs_plot
 ```
 
 ```{r}
-## ---- subgroup_analysis_age_sex_bmi_edu, message=FALSE, warning=FALSE ----
 library(dplyr)
 library(purrr)
 library(broom)
@@ -782,26 +733,20 @@ library(ggplot2)
 library(knitr)
 library(rlang)
 
-# 1) Define 4-year analysis dataset: Wave 6 -> Wave 8
-#    Restrict to participants without cognitive impairment at baseline
 dat_6_8 <- dat %>%
   filter(cf6bi == 0 & !is.na(cf8bi)) %>%
   mutate(
-    outcome = cf8bi  # 0 = no impairment, 1 = impairment at Wave 8
+    outcome = cf8bi  
   )
 
-# 2) Create subgroup variables for age, sex, BMI, and education
 dat_6_8 <- dat_6_8 %>%
   mutate(
-    # Age group (you can change 75 cutpoint if needed)
     age_group = if_else(age < 75, "<75", "≥75"),
     age_group = factor(age_group, levels = c("<75", "≥75")),
 
-    # Ensure sex and education are factors
     sex     = factor(Gender),
     edu_cat = factor(Education),
 
-    # BMI group: <25, 25–29.9, >=30
     bmi_group = case_when(
       bmi < 25              ~ "<25",
       bmi >= 25 & bmi < 30  ~ "25–29.9",
@@ -811,7 +756,6 @@ dat_6_8 <- dat_6_8 %>%
     bmi_group = factor(bmi_group, levels = c("<25", "25–29.9", "≥30"))
   )
 
-# 3) Helper to format OR (95% CI) with significance stars
 format_or_ci <- function(or, lwr, upr, p, digits = 2) {
   stars <- if (p < 0.001) {
     "***"
@@ -826,32 +770,27 @@ format_or_ci <- function(or, lwr, upr, p, digits = 2) {
           digits, or, digits, lwr, digits, upr, stars)
 }
 
-# Helper to format p for interaction
 format_p <- function(p) {
   if (is.na(p)) return(NA_character_)
   if (p < 0.001) "<0.001" else sprintf("%.3f", p)
 }
 
-# 4) Fully adjusted covariates (exclude subgroup itself when stratifying)
 base_adjust_vars <- c(
 "age", "Gender", "Education", "Marital_Status", "Working_Status", "Smoking", "Alcohol_Consumption", "Excercise", "bmi", "ADL", "Depression", "Comorbidities", "HAQ", "GDP"
 )
 
-# 5) Function to run subgroup analysis + p for interaction
 run_subgroup_with_interaction <- function(data,
                                           subgroup_var,
                                           subgroup_label,
                                           adjust_vars) {
   sg_sym <- sym(subgroup_var)
 
-  # Make sure subgroup is a factor
   data <- data %>%
     filter(!is.na(!!sg_sym)) %>%
     mutate(!!subgroup_var := factor(!!sg_sym))
 
   levels_vec <- levels(data[[subgroup_var]])
 
-  # Global models for p for interaction
   f_no_int <- as.formula(
     paste(
       "outcome ~ tghdl_cont",
@@ -879,7 +818,6 @@ run_subgroup_with_interaction <- function(data,
   p_int <- lrt$`Pr(>Chi)`[2]
   p_int_str <- format_p(p_int)
 
-  # Stratified ORs within each level of the subgroup
   map_dfr(
     levels_vec,
     function(lv) {
@@ -890,7 +828,6 @@ run_subgroup_with_interaction <- function(data,
       n_total  <- nrow(df_sub)
       n_events <- sum(df_sub$outcome == 1, na.rm = TRUE)
 
-      # If not enough data, return "Insufficient data"
       if (n_total < 50 || n_events < 5) {
         return(
           tibble(
@@ -948,7 +885,6 @@ run_subgroup_with_interaction <- function(data,
   )
 }
 
-# 6) Run subgroup analyses for age, sex, BMI, and education
 
 # Age (age_group), adjust for all except age
 sub_age <- run_subgroup_with_interaction(
@@ -982,7 +918,6 @@ sub_edu <- run_subgroup_with_interaction(
   adjust_vars  = setdiff(base_adjust_vars, "Education")
 )
 
-# 7) Combine all subgroup results into one table
 subgroup_results <- bind_rows(
   sub_age,
   sub_sex,
@@ -990,7 +925,7 @@ subgroup_results <- bind_rows(
   sub_edu
 )
 
-# 8) Print subgroup results table
+
 kable(
   subgroup_results %>%
     select(Subgroup, Level, N, Events, OR_CI_formatted, `P for interaction`),
@@ -998,15 +933,11 @@ kable(
   align = "llrrcc"
 )
 
-# 9) A cleaner forest plot (log scale, grouped by subgroup)
 
-# Prepare data for plotting
 subgroup_results_plot <- subgroup_results %>%
   filter(is.finite(OR_per_unit)) %>%
   mutate(
-    # Combined label used on the y-axis
     label = paste(Subgroup, "-", Level),
-    # Order labels by subgroup then OR
     label = factor(label, levels = rev(unique(label)))
   )
 
@@ -1056,7 +987,7 @@ Figure 1 illustrates the adjusted restricted cubic spline curve describing the a
 
 Figure 2 and the subgroup analysis table show stratified associations by age, sex, BMI, and education. Across nearly all subgroups, the direction and magnitude of association between baseline TG/HDL-C and 4-year incident cognitive impairment were consistent with the main results.
 
-Based on the subgroup analyses, the positive association between TG/HDL-C and 4-year cognitive impairment was broadly consistent across demographic and clinical strata, and no strong evidence of effect modification was observed. Effect estimates for participants younger than 75 and those aged 75 or older were comparable, with overlapping confidence intervals. Similar patterns were seen for men and women, all showing increased odds of cognitive impairment with higher TG/HDL-C. Across BMI categories (\<25, 25–29.9, and ≥30), the direction and magnitude of associations remained stable, and no subgroup demonstrated a materially different effect. Likewise, education level did not meaningfully alter the relationship, as results were aligned across groups from elementary education to higher education. Overall, the consistency of estimates across all examined subgroups supports a largely homogeneous association without detectable interaction effects.
+Subgroup analyses showed that the positive association between TG/HDL-C and 4-year cognitive impairment was generally consistent across age and BMI categories, with no statistically significant interaction detected (all p-interaction \>0.26). Among participants younger than 75 years, higher TG/HDL-C was associated with increased risk (OR = 1.11, 95% CI: 1.02–1.19), similar in magnitude to adults aged ≥75 years (OR = 1.08, 95% CI: 0.92–1.24). Patterns were also stable across BMI strata, with ORs ranging from 1.05 to 1.17. In contrast, heterogeneity was observed by sex (p-interaction = 0.006) and education level (p-interaction \< 0.001). Women demonstrated a stronger association (OR = 1.12, 95% CI: 1.02–1.22) than men (OR = 1.06, 95% CI: 0.94–1.19). Similarly, participants with middle/high school education showed clearer risk elevation (OR = 1.15, 95% CI: 1.05–1.25), whereas those with higher education did not exhibit a significant association (OR = 0.96, 95% CI: 0.74–1.15). Overall, while TG/HDL-C was positively associated with cognitive impairment in several subgroups, the strength of the association varied notably by sex and educational attainment.
 
 Overall, subgroup analyses suggest that the association between TG/HDL-C and cognitive impairment is broadly consistent across demographic and clinical strata, without strong evidence that the effect differs significantly between groups.
 
