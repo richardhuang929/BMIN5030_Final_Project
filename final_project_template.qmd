@@ -158,10 +158,10 @@ tbl_baseline <- dat %>%
   tbl_summary(
     by = tghdl_q,
     statistic = list(
-      all_continuous() ~ "{mean} \u00b1 {sd}",   # 这里不用 .2f
+      all_continuous() ~ "{mean} \u00b1 {sd}",  
       all_categorical() ~ "{n} ({p}%)"
     ),
-    digits = all_continuous() ~ 2,              # 在这里控制小数位
+    digits = all_continuous() ~ 2,            
     missing = "no"
   ) %>%
   add_p(test = all_continuous() ~ "kruskal.test") %>%
@@ -169,7 +169,6 @@ tbl_baseline <- dat %>%
   modify_spanning_header(all_stat_cols() ~ "TG/HDL-C quartile")
 
 tbl_baseline
-
 ```
 
 ```{r}
@@ -1023,7 +1022,7 @@ ggplot(subgroup_results_plot,
   labs(
     x = "OR per unit increase in TG/HDL-C (log scale)",
     y = "",
-    title = "Subgroup analysis of TG/HDL-C and 4-year cognitive impairment (Wave 6–Wave 8)"
+    title = "Subgroup analysis of TG/HDL-C and 4-year cognitive impairment"
   ) +
   theme_classic(base_size = 11) +
   theme(
@@ -1057,16 +1056,7 @@ Figure 1 illustrates the adjusted restricted cubic spline curve describing the a
 
 Figure 2 and the subgroup analysis table show stratified associations by age, sex, BMI, and education. Across nearly all subgroups, the direction and magnitude of association between baseline TG/HDL-C and 4-year incident cognitive impairment were consistent with the main results.
 
-No strong evidence of effect modification was detected.\
-Specifically:
-
--   **Age (\<75 vs ≥75):** Associations remained positive in both strata, with *p*-for-interaction values indicating no significant interaction.
-
--   **Sex:** Both men and women exhibited similar patterns of increased risk with higher TG/HDL-C.
-
--   **BMI categories (\<25, 25–29.9, ≥30):** Associations were similar across weight groups.
-
--   **Education:** Associations persisted across education levels without significant subgroup differences.
+Based on the subgroup analyses, the positive association between TG/HDL-C and 4-year cognitive impairment was broadly consistent across demographic and clinical strata, and no strong evidence of effect modification was observed. Effect estimates for participants younger than 75 and those aged 75 or older were comparable, with overlapping confidence intervals. Similar patterns were seen for men and women, all showing increased odds of cognitive impairment with higher TG/HDL-C. Across BMI categories (\<25, 25–29.9, and ≥30), the direction and magnitude of associations remained stable, and no subgroup demonstrated a materially different effect. Likewise, education level did not meaningfully alter the relationship, as results were aligned across groups from elementary education to higher education. Overall, the consistency of estimates across all examined subgroups supports a largely homogeneous association without detectable interaction effects.
 
 Overall, subgroup analyses suggest that the association between TG/HDL-C and cognitive impairment is broadly consistent across demographic and clinical strata, without strong evidence that the effect differs significantly between groups.
 
