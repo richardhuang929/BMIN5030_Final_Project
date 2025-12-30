@@ -1,0 +1,888 @@
+---
+title: "Association of ω-3 Fatty Acids with Cognitive Function and AD-related Biomarkers: A Two-Sample Mendelian Randomization Study"
+subtitle: "BMIN5030 Final Project"
+author: "Yucheng Huang"
+format: html
+editor: visual
+number-sections: true
+embed-resources: true
+---
+
+## Overview {#sec-overview}
+
+This project investigates the causal effects of omega-3 polyunsaturated fatty acids on cognitive function and Alzheimer’s disease–related biomarkers using a Mendelian randomization (MR) framework. Observational studies have consistently suggested neuro-protective roles of omega-3 fatty acids, but these associations remain vulnerable to confounding and reverse causation. To address these limitations, we leveraged large-scale genome-wide association study (GWAS) summary statistics and genetic variants associated with omega-3 levels as instrumental variables to strengthen causal inference. Summary-level genetic data for cognitive outcomes and Alzheimer’s disease–related biomarkers were obtained from publicly available GWAS consortia among European population. Multiple MR methods were applied to assess robustness under different assumptions regarding pleiotropy and heterogeneity.
+
+To ensure methodological rigor, the study design and analytical strategy were informed through consultations with faculty experts in department of epidemiology, biostatistics, and medical informatics, with a particular focus on best practices in Mendelian randomization analysis and interpretation.
+
+All analyses were conducted in R, and the complete reproducible workflow is available at: <https://github.com/richardhuang929/BMIN5030_Final_Project/blob/master/final_project_Yucheng_12.31.2025.qmd>
+
+## Introduction {#sec-introduction}
+
+Cognitive decline and Alzheimer’s disease (AD) are major health problems in aging populations. As the global population grows older, the number of people affected by cognitive impairment and dementia continues to increase. However, effective strategies to prevent or delay cognitive decline are still limited. Therefore, identifying modifiable factors that may protect brain health is an important public health goal.
+
+Omega-3 polyunsaturated fatty acids have gained much attention because of their potential neuroprotective effects. Omega-3 fatty acids, especially docosahexaenoic acid (DHA), are important components of neuronal cell membranes. They are involved in synaptic function, signal transmission, and regulation of inflammation in the brain. Experimental studies suggest that omega-3 fatty acids may reduce neuroinflammation, improve synaptic plasticity, and protect neurons from damage caused by amyloid-β accumulation. These biological mechanisms support a possible protective role of omega-3 fatty acids in cognitive function and Alzheimer’s disease.
+
+Many observational studies have reported that higher dietary intake or circulating levels of omega-3 fatty acids are associated with better cognitive performance and a lower risk of dementia. However, the results are not consistent across studies. Some randomized controlled trials have failed to show clear benefits of omega-3 supplementation on cognitive outcomes. These inconsistent findings may be explained by confounding factors such as healthy lifestyle behaviors, socioeconomic status, and overall diet quality. In addition, reverse causation is possible, as individuals with early cognitive decline may change their dietary habits. Because of these limitations, the causal relationship between omega-3 fatty acids and cognitive function remains unclear.
+
+Alzheimer’s disease develops gradually over a long period before clinical symptoms appear. AD-related biomarkers, including cognitive performance measures and biological markers such as amyloid-β levels and brain structural changes, reflect different stages of disease progression. Compared with clinical diagnosis alone, these biomarkers may provide more sensitive and specific information about the underlying biological processes of neurodegeneration. Studying AD-related biomarkers can therefore help to better understand how omega-3 fatty acids may influence the development of Alzheimer’s disease.
+
+Mendelian randomization (MR) is a useful method to assess causal relationships by using genetic variants as instrumental variables. Because genetic variants are randomly assigned at birth, MR analyses are less affected by confounding and reverse causation. By applying Mendelian randomization to omega-3 fatty acids, cognitive function, and Alzheimer’s disease–related biomarkers, this study aims to clarify whether omega-3 fatty acids have a causal effect on brain health and AD-related biological processes.
+
+## Methods {#sec-methods}
+
+This study applied a two-sample MR design to investigate the causal effects of omega-3 polyunsaturated fatty acids on cognitive function and Alzheimer’s disease–related biomarkers. Genetic variants associated with omega-3 levels were used as instrumental variables, and summary-level GWAS data were used for the outcome analyses.
+
+### **Data Sources**
+
+Genetic instruments for fatty acid composition were obtained from large-scale genome-wide association studies of circulating fatty acid profiles. Three exposure variables were examined: the ratio of omega-3 fatty acids to total fatty acids, the ratio of docosahexaenoic acid (DHA) to total fatty acid levels, and the ratio of omega-6 fatty acids to omega-3 fatty acids. These ratio-based measures reflect relative fatty acid composition rather than absolute concentrations and are commonly used to capture metabolic balance between different fatty acid classes.
+
+Single-nucleotide polymorphisms (SNPs) associated with each fatty acid ratio at genome-wide significance were selected as instrumental variables. Linkage disequilibrium clumping was applied to ensure independence among instruments prior to Mendelian randomization analyses.
+
+GWAS summary statistics were obtained for multiple cognitive and Alzheimer’s disease–related outcomes. Cognitive performance outcomes included general cognitive function, fluid intelligence, and prospective memory, which capture different domains of cognitive ability and reflect early functional changes relevant to neurodegeneration.
+
+Neuroimaging-derived outcomes were used as intermediate biomarkers of Alzheimer’s disease pathology. These included average cortical thickness and caudate volume, which represent structural brain changes associated with cognitive aging and neurodegeneration. In addition, Alzheimer’s disease–specific outcomes included an Alzheimer’s disease progression score, hippocampal volume, and amyloid-β deposition, which reflect key biological processes involved in Alzheimer’s disease development and progression.
+
+All outcome GWAS data were derived from large population-based studies of European ancestry. These outcomes were selected to capture both clinical-level cognitive performance and biological markers across different stages of Alzheimer’s disease, allowing a more comprehensive assessment of the potential causal effects of fatty acid composition on cognitive function and AD-related phenotypes.
+
+### Mendelian Randomization Design
+
+A two-sample Mendelian randomization framework was employed. Single nucleotide polymorphisms (SNPs) associated with each omega-3 fatty acids exposure at genome-wide significance (P \< 5×10⁻⁸) were selected as candidate instrumental variables. Linkage disequilibrium clumping was applied to ensure independence among instruments. Weak instruments were excluded using F-statistics, with SNPs having F \< 10 removed prior to analysis.
+
+Primary causal estimates were obtained using the inverse-variance weighted (IVW) method. Heterogeneity among genetic instruments was assessed using Cochran’s Q test. When evidence of heterogeneity was detected (P \< 0.05), the IVW random-effects model was applied. When heterogeneity was not significant (P ≥ 0.05), the IVW fixed-effects model was used. Additional MR methods, including weighted median and MR-Egger regression, were performed as sensitivity analyses to assess the robustness of the findings.
+
+### Sensitivity Analyses
+
+Several sensitivity analyses and graphical diagnostics were performed to assess the robustness of the MR results. MR-Egger intercept tests were conducted to evaluate the presence of directional horizontal pleiotropy. Leave-one-out analyses were used to examine whether the overall causal estimates were driven by any single genetic variant.
+
+Scatter plots were generated to visualize the associations between SNP effects on the exposure and the corresponding effects on each outcome, with regression lines representing different MR methods. In addition, MR effect plots were used to compare causal estimates derived from inverse-variance weighted, weighted median, and MR-Egger approaches. Consistency across these analyses was used to support the stability of the MR findings.
+
+All analyses were conducted in R using the TwoSampleMR package. Code was written to ensure reproducibility and transparency, with detailed comments explaining each processing and analysis step.
+
+```{r}
+### Loading Packages and setting environment
+library(TwoSampleMR)
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(grid)
+library(readr)
+library(forestploter)
+library(data.table)
+library(ggplot2)
+library(patchwork)
+library(R.utils)
+options(scipen = 5)
+options(ieugwasr_api = 'gwas-api.mrcieu.ac.uk/')
+Sys.setenv(OPENGWAS_JWT = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImFwaS1qd3QiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhcGkub3Blbmd3YXMuaW8iLCJhdWQiOiJhcGkub3Blbmd3YXMuaW8iLCJzdWIiOiJyaWNoYXJkLmh1YW5nOTI5QGdtYWlsLmNvbSIsImlhdCI6MTc2NTk5ODkwNywiZXhwIjoxNzY3MjA4NTA3fQ.jaiWe8iJVEH5KrttUaWUzdomtFvzQMU1gjMWIrHhzyiHOvI_3AaFqjqj3aK_i_TxKu5dk1Mr9iZU1ixR6PBNX2Cu5ZgulEb5yY2JsRdwKZTcTmUBcPCvNjs6SszoCRzkjsxnxrbxVyUaqa3UVZ_nmIROvT4EuOcovUdEc6BFTf8atGctWwcoKDFa496wkBryRxo-kJbt3fpRfRrAnZvdeThX8aBRtRR4PAj14StHOZP4FTJ8dr5HrHv9NXWeEgXG4v5ZRCFYiQFI6nUMLa4yM4j-q75KI7RZhZrzuBjwNZWqjCfeUS-bkxRJWzHp0onT8V6xsLya4d0FWWUQd49peg")
+```
+
+```{r}
+exposure_dat_omega_3 <- extract_instruments(c("ebi-a-GCST90092932"),clump = F,p1 = 5e-08)
+exposure_dat_omega_3 <- clump_data(exposure_dat_omega_3,clump_kb = 10000, clump_r2 = 0.001)
+calc_fstat <- function(dat,
+                       beta_col = "beta.exposure",
+                       se_col   = "se.exposure",
+                       f_thresh = 10,
+                       drop_na  = TRUE) {
+  
+  stopifnot(is.data.frame(dat))
+  if (!all(c(beta_col, se_col) %in% names(dat))) {
+    stop("Missing columns: ", paste(setdiff(c(beta_col, se_col), names(dat)), collapse = ", "))
+  }
+  
+  out <- dat %>%
+    mutate(
+      F_stat = (.data[[beta_col]] / .data[[se_col]])^2
+    )
+  
+  if (drop_na) {
+    out <- out %>% filter(is.finite(F_stat))
+  }
+  
+  out_keep <- out %>% filter(F_stat >= f_thresh)
+  
+  summary_tbl <- tibble::tibble(
+    n_before = nrow(out),
+    n_after  = nrow(out_keep),
+    n_dropped = nrow(out) - nrow(out_keep),
+    f_threshold = f_thresh,
+    F_min = min(out$F_stat, na.rm = TRUE),
+    F_median = stats::median(out$F_stat, na.rm = TRUE),
+    F_mean = mean(out$F_stat, na.rm = TRUE)
+  )
+  
+  list(
+    data_with_F = out,
+    data_filtered = out_keep,
+    summary = summary_tbl
+  )
+}
+
+res <- calc_fstat(exposure_dat_omega_3, f_thresh = 10)
+
+res$summary
+exposure_dat_omega_3 <- res$data_filtered
+
+weak_snps <- anti_join(res$data_with_F, exposure_dat_omega_3, by = intersect(names(res$data_with_F), names(exposure_dat_omega_3)))
+weak_snps %>% select(SNP, beta.exposure, se.exposure, F_stat) %>% arrange(F_stat)
+```
+
+```{r}
+outcome_dat_cognitive_function <- extract_outcome_data(snps=exposure_dat_omega_3$SNP, c("ieu-b-4838"))
+
+outcome_dat_fluid_intelligence <- extract_outcome_data(snps=exposure_dat_omega_3$SNP, c("ukb-b-5238"))
+
+outcome_dat_prospective_memory <- extract_outcome_data(snps=exposure_dat_omega_3$SNP, c("ukb-b-4282"))
+
+outcome_dat_ft <- read_outcome_data(filename =  "E:/MR/cognitive&AD/cognitive&AD/outcome/FT/FT.txt", snps = exposure_dat_omega_3$SNP, snp_col = "SNP", beta_col = "BETA1",se_col = "SE", effect_allele_col = "A1",other_allele_col = "A2", pval_col = "P", samplesize_col = "N",sep = " ",eaf_col = "FREQ1")
+
+outcome_dat_left_caudate <- read_outcome_data(filename = "E:/MR/GCST90085825_buildGRCh38.tsv/GCST90085825_buildGRCh38.tsv", snps = exposure_dat_omega_3$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
+
+outcome_dat_right_caudate <- read_outcome_data(filename = "E:/MR/GCST90085866_buildGRCh38.tsv/GCST90085866_buildGRCh38.tsv", snps = exposure_dat_omega_3$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
+```
+
+```{r}
+dat_cognitive_function <- harmonise_data(
+  exposure_dat = exposure_dat_omega_3,
+  outcome_dat = outcome_dat_cognitive_function,
+  action = 2
+)
+
+dat_fluid_intelligence <- harmonise_data(
+  exposure_dat = exposure_dat_omega_3,
+  outcome_dat = outcome_dat_fluid_intelligence,
+  action = 2
+)
+
+dat_prospective_memory <- harmonise_data(
+  exposure_dat = exposure_dat_omega_3,
+  outcome_dat = outcome_dat_prospective_memory,
+  action = 2
+)
+
+dat_ft <- harmonise_data(
+  exposure_dat = exposure_dat_omega_3,
+  outcome_dat = outcome_dat_ft
+)
+
+dat_left_caudate <-harmonise_data(
+  exposure_dat = exposure_dat_omega_3,
+  outcome_dat = outcome_dat_left_caudate
+)
+
+dat_right_caudate <-harmonise_data(
+  exposure_dat = exposure_dat_omega_3,
+  outcome_dat = outcome_dat_right_caudate
+)
+
+dat_n3_dps <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n3_dps.csv")
+
+dat_n3_hippo <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n3_hippo.csv")
+
+dat_n3_abeta <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n3_abeta.csv")
+```
+
+```{r}
+res <- mr(dat_cognitive_function,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_cognitive_function)
+mr_pleiotropy_test(dat_cognitive_function)
+res_single <- mr_singlesnp(dat_cognitive_function)
+res_loo <- mr_leaveoneout(dat_cognitive_function)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_cognitive_function)
+res_single <- mr_singlesnp(dat_cognitive_function)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_cognitive_function)
+```
+
+```{r}
+res <- mr(dat_fluid_intelligence,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_fluid_intelligence)
+mr_pleiotropy_test(dat_fluid_intelligence)
+res_single <- mr_singlesnp(dat_fluid_intelligence)
+res_loo <- mr_leaveoneout(dat_fluid_intelligence)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_fluid_intelligence)
+res_single <- mr_singlesnp(dat_fluid_intelligence)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_fluid_intelligence)
+```
+
+```{r}
+res <- mr(dat_prospective_memory,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_prospective_memory)
+mr_pleiotropy_test(dat_prospective_memory)
+res_single <- mr_singlesnp(dat_prospective_memory)
+res_loo <- mr_leaveoneout(dat_prospective_memory)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_prospective_memory)
+res_single <- mr_singlesnp(dat_prospective_memory)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_prospective_memory)
+```
+
+```{r}
+res <- mr(dat_ft,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_ft)
+mr_pleiotropy_test(dat_ft)
+res_single <- mr_singlesnp(dat_ft)
+res_loo <- mr_leaveoneout(dat_ft)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_ft)
+res_single <- mr_singlesnp(dat_ft)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_ft)
+```
+
+```{r}
+res <- mr(dat_n3_dps,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_n3_dps)
+mr_pleiotropy_test(dat_n3_dps)
+res_single <- mr_singlesnp(dat_n3_dps)
+res_loo <- mr_leaveoneout(dat_n3_dps)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_n3_dps)
+res_single <- mr_singlesnp(dat_n3_dps)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_n3_dps)
+```
+
+```{r}
+res <- mr(dat_n3_hippo,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_n3_hippo)
+mr_pleiotropy_test(dat_n3_hippo)
+res_single <- mr_singlesnp(dat_n3_hippo)
+res_loo <- mr_leaveoneout(dat_n3_hippo)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_n3_hippo)
+res_single <- mr_singlesnp(dat_n3_hippo)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_n3_hippo)
+```
+
+```{r}
+res <- mr(dat_n3_abeta,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_n3_abeta)
+mr_pleiotropy_test(dat_n3_abeta)
+res_single <- mr_singlesnp(dat_n3_abeta)
+res_loo <- mr_leaveoneout(dat_n3_abeta)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_n3_abeta)
+res_single <- mr_singlesnp(dat_n3_abeta)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_n3_abeta)
+```
+
+```{r}
+res <- mr(dat_left_caudate,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_left_caudate)
+mr_pleiotropy_test(dat_left_caudate)
+res_single <- mr_singlesnp(dat_left_caudate)
+res_loo <- mr_leaveoneout(dat_left_caudate)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_left_caudate)
+res_single <- mr_singlesnp(dat_left_caudate)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_left_caudate)
+```
+
+```{r}
+res <- mr(dat_right_caudate,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_right_caudate)
+mr_pleiotropy_test(dat_right_caudate)
+res_single <- mr_singlesnp(dat_right_caudate)
+res_loo <- mr_leaveoneout(dat_right_caudate)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_right_caudate)
+res_single <- mr_singlesnp(dat_right_caudate)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_right_caudate)
+```
+
+```{r}
+exposure_dat_dha <- extract_instruments(c("ebi-a-GCST90092817"),clump = F,p1 = 5e-08)
+exposure_dat_dha <- clump_data(exposure_dat_dha,clump_kb = 10000, clump_r2 = 0.001)
+calc_fstat <- function(dat,
+                       beta_col = "beta.exposure",
+                       se_col   = "se.exposure",
+                       f_thresh = 10,
+                       drop_na  = TRUE) {
+  
+  stopifnot(is.data.frame(dat))
+  if (!all(c(beta_col, se_col) %in% names(dat))) {
+    stop("Missing columns: ", paste(setdiff(c(beta_col, se_col), names(dat)), collapse = ", "))
+  }
+  
+  out <- dat %>%
+    mutate(
+      F_stat = (.data[[beta_col]] / .data[[se_col]])^2
+    )
+  
+  if (drop_na) {
+    out <- out %>% filter(is.finite(F_stat))
+  }
+  
+  out_keep <- out %>% filter(F_stat >= f_thresh)
+  
+  summary_tbl <- tibble::tibble(
+    n_before = nrow(out),
+    n_after  = nrow(out_keep),
+    n_dropped = nrow(out) - nrow(out_keep),
+    f_threshold = f_thresh,
+    F_min = min(out$F_stat, na.rm = TRUE),
+    F_median = stats::median(out$F_stat, na.rm = TRUE),
+    F_mean = mean(out$F_stat, na.rm = TRUE)
+  )
+  
+  list(
+    data_with_F = out,
+    data_filtered = out_keep,
+    summary = summary_tbl
+  )
+}
+
+res <- calc_fstat(exposure_dat_dha, f_thresh = 10)
+
+res$summary
+exposure_dat_dha <- res$data_filtered
+
+weak_snps <- anti_join(res$data_with_F, exposure_dat_dha, by = intersect(names(res$data_with_F), names(exposure_dat_dha)))
+weak_snps %>% select(SNP, beta.exposure, se.exposure, F_stat) %>% arrange(F_stat)
+```
+
+```{r}
+outcome_dat_cognitive_function <- extract_outcome_data(snps=exposure_dat_dha$SNP, c("ieu-b-4838"))
+
+outcome_dat_fluid_intelligence <- extract_outcome_data(snps=exposure_dat_dha$SNP, c("ukb-b-5238"))
+
+outcome_dat_prospective_memory <- extract_outcome_data(snps=exposure_dat_dha$SNP, c("ukb-b-4282"))
+
+outcome_dat_ft <- read_outcome_data(filename =  "E:/MR/cognitive&AD/cognitive&AD/outcome/FT/FT.txt", snps = exposure_dat_dha$SNP, snp_col = "SNP", beta_col = "BETA1",se_col = "SE", effect_allele_col = "A1",other_allele_col = "A2", pval_col = "P", samplesize_col = "N",sep = " ",eaf_col = "FREQ1")
+
+outcome_dat_left_caudate <- read_outcome_data(filename = "E:/MR/GCST90085825_buildGRCh38.tsv/GCST90085825_buildGRCh38.tsv", snps = exposure_dat_dha$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
+
+outcome_dat_right_caudate <- read_outcome_data(filename = "E:/MR/GCST90085866_buildGRCh38.tsv/GCST90085866_buildGRCh38.tsv", snps = exposure_dat_dha$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
+```
+
+```{r}
+dat_cognitive_function <- harmonise_data(
+  exposure_dat = exposure_dat_dha,
+  outcome_dat = outcome_dat_cognitive_function,
+  action = 2
+)
+
+dat_fluid_intelligence <- harmonise_data(
+  exposure_dat = exposure_dat_dha,
+  outcome_dat = outcome_dat_fluid_intelligence,
+  action = 2
+)
+
+dat_prospective_memory <- harmonise_data(
+  exposure_dat = exposure_dat_dha,
+  outcome_dat = outcome_dat_prospective_memory,
+  action = 2
+)
+
+dat_ft <- harmonise_data(
+  exposure_dat = exposure_dat_dha,
+  outcome_dat = outcome_dat_ft
+)
+
+dat_left_caudate <-harmonise_data(
+  exposure_dat = exposure_dat_dha,
+  outcome_dat = outcome_dat_left_caudate
+)
+
+dat_right_caudate <-harmonise_data(
+  exposure_dat = exposure_dat_dha,
+  outcome_dat = outcome_dat_right_caudate
+)
+
+dat_dha_dps <- read_csv("E:/MR/cognitive&AD/cognitive&AD/DHAtotal_dps.csv")
+
+dat_dha_hippo <- read_csv("E:/MR/cognitive&AD/cognitive&AD/DHAtotal_hippo.csv")
+
+dat_dha_abeta <- read_csv("E:/MR/cognitive&AD/cognitive&AD/DHAtotal_abeta.csv")
+```
+
+```{r}
+res <- mr(dat_cognitive_function,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_cognitive_function)
+mr_pleiotropy_test(dat_cognitive_function)
+res_single <- mr_singlesnp(dat_cognitive_function)
+res_loo <- mr_leaveoneout(dat_cognitive_function)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_cognitive_function)
+res_single <- mr_singlesnp(dat_cognitive_function)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_cognitive_function)
+```
+
+```{r}
+res <- mr(dat_fluid_intelligence,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_fluid_intelligence)
+mr_pleiotropy_test(dat_fluid_intelligence)
+res_single <- mr_singlesnp(dat_fluid_intelligence)
+res_loo <- mr_leaveoneout(dat_fluid_intelligence)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_fluid_intelligence)
+res_single <- mr_singlesnp(dat_fluid_intelligence)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_fluid_intelligence)
+```
+
+```{r}
+res <- mr(dat_prospective_memory,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_prospective_memory)
+mr_pleiotropy_test(dat_prospective_memory)
+res_single <- mr_singlesnp(dat_prospective_memory)
+res_loo <- mr_leaveoneout(dat_prospective_memory)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_prospective_memory)
+res_single <- mr_singlesnp(dat_prospective_memory)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_prospective_memory)
+```
+
+```{r}
+res <- mr(dat_ft,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_ft)
+mr_pleiotropy_test(dat_ft)
+res_single <- mr_singlesnp(dat_ft)
+res_loo <- mr_leaveoneout(dat_ft)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_ft)
+res_single <- mr_singlesnp(dat_ft)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_ft)
+```
+
+```{r}
+res <- mr(dat_left_caudate,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_left_caudate)
+mr_pleiotropy_test(dat_left_caudate)
+res_single <- mr_singlesnp(dat_left_caudate)
+res_loo <- mr_leaveoneout(dat_left_caudate)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_left_caudate)
+res_single <- mr_singlesnp(dat_left_caudate)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_left_caudate)
+```
+
+```{r}
+res <- mr(dat_right_caudate,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_right_caudate)
+mr_pleiotropy_test(dat_right_caudate)
+res_single <- mr_singlesnp(dat_right_caudate)
+res_loo <- mr_leaveoneout(dat_right_caudate)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_right_caudate)
+res_single <- mr_singlesnp(dat_right_caudate)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_right_caudate)
+```
+
+```{r}
+res <- mr(dat_dha_dps,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_dha_dps)
+mr_pleiotropy_test(dat_dha_dps)
+res_single <- mr_singlesnp(dat_dha_dps)
+res_loo <- mr_leaveoneout(dat_dha_dps)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_dha_dps)
+res_single <- mr_singlesnp(dat_dha_dps)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_dha_dps)
+```
+
+```{r}
+res <- mr(dat_dha_hippo,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_dha_hippo)
+mr_pleiotropy_test(dat_dha_hippo)
+res_single <- mr_singlesnp(dat_dha_hippo)
+res_loo <- mr_leaveoneout(dat_dha_hippo)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_dha_hippo)
+res_single <- mr_singlesnp(dat_dha_hippo)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_dha_hippo)
+```
+
+```{r}
+res <- mr(dat_dha_abeta,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_dha_abeta)
+mr_pleiotropy_test(dat_dha_abeta)
+res_single <- mr_singlesnp(dat_dha_abeta)
+res_loo <- mr_leaveoneout(dat_dha_abeta)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_dha_abeta)
+res_single <- mr_singlesnp(dat_dha_abeta)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_dha_abeta)
+```
+
+```{r}
+exposure_dat_n6n3 <- extract_instruments(c("ebi-a-GCST90092934"),clump = F,p1 = 5e-08)
+exposure_dat_n6n3 <- clump_data(exposure_dat_n6n3,clump_kb = 10000, clump_r2 = 0.001)
+calc_fstat <- function(dat,
+                       beta_col = "beta.exposure",
+                       se_col   = "se.exposure",
+                       f_thresh = 10,
+                       drop_na  = TRUE) {
+  
+  stopifnot(is.data.frame(dat))
+  if (!all(c(beta_col, se_col) %in% names(dat))) {
+    stop("Missing columns: ", paste(setdiff(c(beta_col, se_col), names(dat)), collapse = ", "))
+  }
+  
+  out <- dat %>%
+    mutate(
+      F_stat = (.data[[beta_col]] / .data[[se_col]])^2
+    )
+  
+  if (drop_na) {
+    out <- out %>% filter(is.finite(F_stat))
+  }
+  
+  out_keep <- out %>% filter(F_stat >= f_thresh)
+  
+  summary_tbl <- tibble::tibble(
+    n_before = nrow(out),
+    n_after  = nrow(out_keep),
+    n_dropped = nrow(out) - nrow(out_keep),
+    f_threshold = f_thresh,
+    F_min = min(out$F_stat, na.rm = TRUE),
+    F_median = stats::median(out$F_stat, na.rm = TRUE),
+    F_mean = mean(out$F_stat, na.rm = TRUE)
+  )
+  
+  list(
+    data_with_F = out,
+    data_filtered = out_keep,
+    summary = summary_tbl
+  )
+}
+
+res <- calc_fstat(exposure_dat_n6n3, f_thresh = 10)
+
+res$summary
+exposure_dat_n6n3 <- res$data_filtered
+
+weak_snps <- anti_join(res$data_with_F, exposure_dat_n6n3, by = intersect(names(res$data_with_F), names(exposure_dat_n6n3)))
+weak_snps %>% select(SNP, beta.exposure, se.exposure, F_stat) %>% arrange(F_stat)
+```
+
+```{r}
+outcome_dat_cognitive_function <- extract_outcome_data(snps=exposure_dat_n6n3$SNP, c("ieu-b-4838"))
+
+outcome_dat_fluid_intelligence <- extract_outcome_data(snps=exposure_dat_n6n3$SNP, c("ukb-b-5238"))
+
+outcome_dat_prospective_memory <- extract_outcome_data(snps=exposure_dat_n6n3$SNP, c("ukb-b-4282"))
+
+outcome_dat_ft <- read_outcome_data(filename =  "E:/MR/cognitive&AD/cognitive&AD/outcome/FT/FT.txt", snps = exposure_dat_n6n3$SNP, snp_col = "SNP", beta_col = "BETA1",se_col = "SE", effect_allele_col = "A1",other_allele_col = "A2", pval_col = "P", samplesize_col = "N",sep = " ",eaf_col = "FREQ1")
+
+outcome_dat_left_caudate <- read_outcome_data(filename = "E:/MR/GCST90085825_buildGRCh38.tsv/GCST90085825_buildGRCh38.tsv", snps = exposure_dat_n6n3$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
+
+outcome_dat_right_caudate <- read_outcome_data(filename = "E:/MR/GCST90085866_buildGRCh38.tsv/GCST90085866_buildGRCh38.tsv", snps = exposure_dat_n6n3$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
+```
+
+```{r}
+dat_cognitive_function <- harmonise_data(
+  exposure_dat = exposure_dat_n6n3,
+  outcome_dat = outcome_dat_cognitive_function,
+  action = 2
+)
+
+dat_fluid_intelligence <- harmonise_data(
+  exposure_dat = exposure_dat_n6n3,
+  outcome_dat = outcome_dat_fluid_intelligence,
+  action = 2
+)
+
+dat_prospective_memory <- harmonise_data(
+  exposure_dat = exposure_dat_n6n3,
+  outcome_dat = outcome_dat_prospective_memory,
+  action = 2
+)
+
+dat_ft <- harmonise_data(
+  exposure_dat = exposure_dat_n6n3,
+  outcome_dat = outcome_dat_ft
+)
+
+dat_left_caudate <-harmonise_data(
+  exposure_dat = exposure_dat_n6n3,
+  outcome_dat = outcome_dat_left_caudate
+)
+
+dat_right_caudate <-harmonise_data(
+  exposure_dat = exposure_dat_n6n3,
+  outcome_dat = outcome_dat_right_caudate
+)
+
+dat_n6n3_dps <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n6n3_dps.csv")
+
+dat_n6n3_hippo <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n6n3_hippo.csv")
+
+dat_n6n3_abeta <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n6n3_abeta.csv")
+```
+
+```{r}
+res <- mr(dat_cognitive_function,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_cognitive_function)
+mr_pleiotropy_test(dat_cognitive_function)
+res_single <- mr_singlesnp(dat_cognitive_function)
+res_loo <- mr_leaveoneout(dat_cognitive_function)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_cognitive_function)
+res_single <- mr_singlesnp(dat_cognitive_function)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_cognitive_function)
+```
+
+```{r}
+res <- mr(dat_fluid_intelligence,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_fluid_intelligence)
+mr_pleiotropy_test(dat_fluid_intelligence)
+res_single <- mr_singlesnp(dat_fluid_intelligence)
+res_loo <- mr_leaveoneout(dat_fluid_intelligence)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_fluid_intelligence)
+res_single <- mr_singlesnp(dat_fluid_intelligence)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_fluid_intelligence)
+```
+
+```{r}
+res <- mr(dat_prospective_memory,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_prospective_memory)
+mr_pleiotropy_test(dat_prospective_memory)
+res_single <- mr_singlesnp(dat_prospective_memory)
+res_loo <- mr_leaveoneout(dat_prospective_memory)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_prospective_memory)
+res_single <- mr_singlesnp(dat_prospective_memory)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_prospective_memory)
+```
+
+```{r}
+res <- mr(dat_ft,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_ft)
+mr_pleiotropy_test(dat_ft)
+res_single <- mr_singlesnp(dat_ft)
+res_loo <- mr_leaveoneout(dat_ft)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_ft)
+res_single <- mr_singlesnp(dat_ft)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_ft)
+```
+
+```{r}
+res <- mr(dat_left_caudate,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_left_caudate)
+mr_pleiotropy_test(dat_left_caudate)
+res_single <- mr_singlesnp(dat_left_caudate)
+res_loo <- mr_leaveoneout(dat_left_caudate)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_left_caudate)
+res_single <- mr_singlesnp(dat_left_caudate)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_left_caudate)
+```
+
+```{r}
+res <- mr(dat_right_caudate,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_right_caudate)
+mr_pleiotropy_test(dat_right_caudate)
+res_single <- mr_singlesnp(dat_right_caudate)
+res_loo <- mr_leaveoneout(dat_right_caudate)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_right_caudate)
+res_single <- mr_singlesnp(dat_right_caudate)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_right_caudate)
+```
+
+```{r}
+res <- mr(dat_n6n3_dps,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_n6n3_dps)
+mr_pleiotropy_test(dat_n6n3_dps)
+res_single <- mr_singlesnp(dat_n6n3_dps)
+res_loo <- mr_leaveoneout(dat_n6n3_dps)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_n6n3_dps)
+res_single <- mr_singlesnp(dat_n6n3_dps)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_n6n3_dps)
+```
+
+```{r}
+res <- mr(dat_n6n3_hippo,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_n6n3_hippo)
+mr_pleiotropy_test(dat_n6n3_hippo)
+res_single <- mr_singlesnp(dat_n6n3_hippo)
+res_loo <- mr_leaveoneout(dat_n6n3_hippo)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_n6n3_hippo)
+res_single <- mr_singlesnp(dat_n6n3_hippo)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_n6n3_hippo)
+```
+
+```{r}
+res <- mr(dat_n6n3_abeta,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
+res$lower <- res$b - 1.96 * res$se
+res$upper <- res$b + 1.96 * res$se
+res$OR <- exp(res$b)
+res
+mr_heterogeneity(dat_n6n3_abeta)
+mr_pleiotropy_test(dat_n6n3_abeta)
+res_single <- mr_singlesnp(dat_n6n3_abeta)
+res_loo <- mr_leaveoneout(dat_n6n3_abeta)
+mr_leaveoneout_plot(res_loo)
+p1 <- mr_scatter_plot(res, dat_n6n3_abeta)
+res_single <- mr_singlesnp(dat_n6n3_abeta)
+mr_funnel_plot(res_single)
+mr_scatter_plot(res, dat_n6n3_abeta)
+```
+
+## Results {#sec-results}
+
+For the three omega-3–related exposure traits—ratio of omega-3 fatty acids to total fatty acids, ratio of docosahexaenoic acid (DHA) to total fatty acids, and ratio of omega-6 fatty acids to omega-3 fatty acids—independent genetic variants were selected as instrumental variables after standard quality control procedures. All instruments showed adequate strength, and no strong evidence of directional pleiotropy was detected based on sensitivity analyses. Heterogeneity tests guided the choice between fixed-effects and random-effects IVW models.
+
+### Ratio of omega-3 fatty acids to total PUFAs
+
+For the ratio of omega-3 fatty acids to total PUFAs, IVW analyses showed no statistically significant associations with global cognitive function, fluid intelligence, prospective memory, or three Alzheimer’s disease (AD)–related biomarkers.
+
+However, positive associations were observed for average cortical thickness, with the IVW fixed-effects estimate indicating a modest increase in cortical thickness (β = 0.005, 95% CI: 0.000 to 0.010, *P* = 0.042). For subcortical structures, negative associations with caudate volume were suggested, particularly for the right caudate volume, where the IVW random-effects estimate reached statistical significance (β = −37.21, 95% CI: −71.80 to −2.62, *P* = 0.035). Weighted median estimates were directionally consistent and statistically significant for both left and right caudate volumes, supporting a potential inverse relationship. No significant associations were observed for AD progression score or hippocampal volume in AD, although effect directions were generally consistent across MR methods.
+
+### Ratio of docosahexaenoic acid (DHA) to total PUFAs
+
+For the ratio of DHA to total PUFAs, IVW analyses indicated no significant association with overall cognitive function or prospective memory. In contrast, fluid intelligence showed a suggestive negative association, with the MR Egger and weighted median estimates reaching statistical significance, while the IVW random-effects estimate was not statistically significant, although the direction was consistent.
+
+Notably, average cortical thickness demonstrated a consistent and statistically significant positive association across all three MR methods, suggesting a robust relationship between higher cortical thickness and higher DHA level.
+
+For caudate volume, negative associations were observed, particularly for the right caudate volume, where the weighted median estimate was statistically significant (β = −29.39, 95% CI: −52.49 to −6.30, *P* = 0.013), while IVW estimates showed similar directions but did not consistently reach significance. A positive association with AD progression score was observed in the IVW fixed-effects model (β = 0.086, 95% CI: 0.021 to 0.151, *P* = 0.009), whereas results for hippocampal volume and cortical amyloid deposition in AD were not statistically significant across methods.
+
+### Ratio of omega-6 to omega-3 fatty acids
+
+For the ratio of omega-6 to omega-3 fatty acids, IVW analyses did not identify significant associations with global cognitive function, fluid intelligence, prospective memory, or cortical thickness. However, positive associations with caudate volume were observed, particularly for the right caudate volume, where both weighted median (β = 42.83, 95% CI: 11.83 to 73.84, *P* = 0.007) and IVW random-effects estimates (β = 32.16, 95% CI: 0.56 to 63.76, *P* = 0.046) reached statistical significance.
+
+For AD-related outcomes, IVW estimates suggested inverse but non-significant associations with AD progression score, while weighted median and MR Egger results showed consistent directions but did not reach statistical significance. No significant associations were observed for hippocampal volume or cortical amyloid deposition in AD.
+
+## Conclusion
+
+In this Mendelian randomization study, we examined the potential causal effects of different polyunsaturated fatty acid ratios on cognitive performance and Alzheimer’s disease–related phenotypes. Overall, the IVW analyses provided limited evidence for strong causal effects on global cognitive function or most AD biomarkers. However, several consistent and biologically plausible associations were observed across specific outcomes.
+
+Notably, higher ratios of omega-3 fatty acids and DHA to total PUFAs were positively associated with average cortical thickness, with results remaining consistent across multiple MR methods. In addition, DHA-related exposures and the omega-6 to omega-3 ratio showed associations with caudate volume, suggesting that fatty acid composition may influence subcortical brain structures involved in cognitive and motor processes. While IVW estimates were not always statistically significant, directionally consistent and significant findings from the weighted median method support the robustness of these associations under different modeling assumptions.
+
+In contrast, associations with Alzheimer’s disease progression, hippocampal volume, and cortical amyloid deposition were generally weak or non-significant, indicating that fatty acid ratios may have a more pronounced role in brain structure and cognitive-related traits rather than direct AD pathological processes.
+
+To conclude, these findings suggest that the balance of dietary fatty acids, particularly DHA relative to total PUFAs, may play a modest but meaningful role in maintaining brain structural integrity. Further studies using larger GWAS datasets and longitudinal neuroimaging outcomes are warranted to clarify the mechanisms underlying these relationships and their relevance for cognitive aging and neurodegenerative disease.
