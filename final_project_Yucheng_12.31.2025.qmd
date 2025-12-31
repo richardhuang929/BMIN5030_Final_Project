@@ -1,5 +1,5 @@
 ---
-title: "Association of ω-3 Fatty Acids with Cognitive Function and AD-related Biomarkers: A Two-Sample Mendelian Randomization Study"
+title: "Causal Effects of Omega-3 Fatty Acid Ratios on Alzheimer’s Disease–Related Phenotypes: A Two-Sample Mendelian Randomization Study"
 subtitle: "BMIN5030 Final Project"
 author: "Yucheng Huang"
 format: html
@@ -10,43 +10,41 @@ embed-resources: true
 
 ## Overview {#sec-overview}
 
-This project investigates the causal effects of omega-3 polyunsaturated fatty acids on cognitive function and Alzheimer’s disease–related biomarkers using a Mendelian randomization (MR) framework. Observational studies have consistently suggested neuro-protective roles of omega-3 fatty acids, but these associations remain vulnerable to confounding and reverse causation. To address these limitations, we leveraged large-scale genome-wide association study (GWAS) summary statistics and genetic variants associated with omega-3 levels as instrumental variables to strengthen causal inference. Summary-level genetic data for cognitive outcomes and Alzheimer’s disease–related biomarkers were obtained from publicly available GWAS consortia among European population. Multiple MR methods were applied to assess robustness under different assumptions regarding pleiotropy and heterogeneity.
+This project applies a Mendelian randomization (MR) approach to investigate whether omega-3 fatty acid balance has causal effects on Alzheimer’s disease–related phenotypes. Genetic variants associated with three omega-3–related exposures—the ratio of omega-3 fatty acids to total fatty acids, the ratio of docosahexaenoic acid (DHA) to total fatty acids, and the ratio of omega-6 to omega-3 fatty acids—were used as instrumental variables.
 
-To ensure methodological rigor, the study design and analytical strategy were informed through consultations with faculty experts in department of epidemiology, biostatistics, and medical informatics, with a particular focus on best practices in Mendelian randomization analysis and interpretation.
+Summary-level genome-wide association study (GWAS) data were analyzed for six Alzheimer’s disease–related outcomes, including disease progression score, hippocampal volume, cortical amyloid deposition, average cortical thickness, and left and right caudate volumes. The inverse-variance weighted method was used as the primary analysis, with weighted median and MR Egger methods as sensitivity analyses.
 
-All analyses were conducted in R, and the complete reproducible workflow is available at: <https://github.com/richardhuang929/BMIN5030_Final_Project/blob/master/final_project_Yucheng_12.31.2025.qmd>
+This project aims to clarify whether genetic predisposition to higher omega-3 status is causally associated with brain structural changes and Alzheimer’s disease–related pathology.
+
+All analyses were conducted in R, and the complete reproducible workflow is available at: [BMIN5030_Final_Project/final_project_Yucheng_12.31.2025.qmd at master · richardhuang929/BMIN5030_Final_Project](https://github.com/richardhuang929/BMIN5030_Final_Project/blob/master/final_project_Yucheng_12.31.2025.qmd)
 
 ## Introduction {#sec-introduction}
 
-Cognitive decline and Alzheimer’s disease (AD) are major health problems in aging populations. As the global population grows older, the number of people affected by cognitive impairment and dementia continues to increase. However, effective strategies to prevent or delay cognitive decline are still limited. Therefore, identifying modifiable factors that may protect brain health is an important public health goal.
+Omega-3 fatty acids are essential components of neuronal cell membranes and play an important role in brain development and maintenance. Among them, docosahexaenoic acid (DHA) is highly concentrated in the brain and is involved in synaptic function, membrane fluidity, and neuroinflammatory regulation. Experimental studies suggest that omega-3 fatty acids may have neuroprotective effects and may slow neurodegenerative processes.
 
-Omega-3 polyunsaturated fatty acids have gained much attention because of their potential neuroprotective effects. Omega-3 fatty acids, especially docosahexaenoic acid (DHA), are important components of neuronal cell membranes. They are involved in synaptic function, signal transmission, and regulation of inflammation in the brain. Experimental studies suggest that omega-3 fatty acids may reduce neuroinflammation, improve synaptic plasticity, and protect neurons from damage caused by amyloid-β accumulation. These biological mechanisms support a possible protective role of omega-3 fatty acids in cognitive function and Alzheimer’s disease.
+Observational studies have reported associations between higher omega-3 intake and reduced risk of cognitive decline and Alzheimer’s disease (AD). However, these findings are inconsistent and may be influenced by confounding factors such as diet, lifestyle, and socioeconomic status. In addition, reverse causation cannot be excluded, as individuals with early neurodegeneration may change their dietary habits.
 
-Many observational studies have reported that higher dietary intake or circulating levels of omega-3 fatty acids are associated with better cognitive performance and a lower risk of dementia. However, the results are not consistent across studies. Some randomized controlled trials have failed to show clear benefits of omega-3 supplementation on cognitive outcomes. These inconsistent findings may be explained by confounding factors such as healthy lifestyle behaviors, socioeconomic status, and overall diet quality. In addition, reverse causation is possible, as individuals with early cognitive decline may change their dietary habits. Because of these limitations, the causal relationship between omega-3 fatty acids and cognitive function remains unclear.
+AD is characterized by progressive brain atrophy, amyloid-β accumulation, and deterioration of subcortical and cortical structures. Brain imaging phenotypes, such as cortical thickness, hippocampal volume, and caudate volume, provide important insights into disease progression and neurodegeneration. Understanding whether omega-3 fatty acids have a causal influence on these phenotypes may help clarify their role in AD pathology.
 
-Alzheimer’s disease develops gradually over a long period before clinical symptoms appear. AD-related biomarkers, including cognitive performance measures and biological markers such as amyloid-β levels and brain structural changes, reflect different stages of disease progression. Compared with clinical diagnosis alone, these biomarkers may provide more sensitive and specific information about the underlying biological processes of neurodegeneration. Studying AD-related biomarkers can therefore help to better understand how omega-3 fatty acids may influence the development of Alzheimer’s disease.
-
-Mendelian randomization (MR) is a useful method to assess causal relationships by using genetic variants as instrumental variables. Because genetic variants are randomly assigned at birth, MR analyses are less affected by confounding and reverse causation. By applying Mendelian randomization to omega-3 fatty acids, cognitive function, and Alzheimer’s disease–related biomarkers, this study aims to clarify whether omega-3 fatty acids have a causal effect on brain health and AD-related biological processes.
+MR uses genetic variants as proxies for lifelong exposure and can reduce bias from confounding and reverse causation. In this study, we used a two-sample MR study design to examine the causal effects of omega-3 fatty acid balance, with a particular focus on DHA, on multiple AD–related phenotypes.
 
 ## Methods {#sec-methods}
 
-This study applied a two-sample MR design to investigate the causal effects of omega-3 polyunsaturated fatty acids on cognitive function and Alzheimer’s disease–related biomarkers. Genetic variants associated with omega-3 levels were used as instrumental variables, and summary-level GWAS data were used for the outcome analyses.
+A two-sample MR design was applied to evaluate the causal effects of omega-3–related exposures on AD–related outcomes. Genetic variants associated with omega-3 fatty acid balance were used as instrumental variables.
 
 ### **Data Sources**
 
-Genetic instruments for fatty acid composition were obtained from large-scale genome-wide association studies of circulating fatty acid profiles. Three exposure variables were examined: the ratio of omega-3 fatty acids to total fatty acids, the ratio of docosahexaenoic acid (DHA) to total fatty acid levels, and the ratio of omega-6 fatty acids to omega-3 fatty acids. These ratio-based measures reflect relative fatty acid composition rather than absolute concentrations and are commonly used to capture metabolic balance between different fatty acid classes.
+GWAS summary statistics were obtained for three omega-3–related exposures: the ratio of omega-3 fatty acids to total fatty acids, the ratio of DHA to total fatty acids, and the ratio of omega-6 to omega-3 fatty acids. These ratios reflect long-term differences in omega-3 status and fatty acid balance. Independent single nucleotide polymorphisms significantly associated with each exposure were selected as instrumental variables.
 
 Single-nucleotide polymorphisms (SNPs) associated with each fatty acid ratio at genome-wide significance were selected as instrumental variables. Linkage disequilibrium clumping was applied to ensure independence among instruments prior to Mendelian randomization analyses.
 
-GWAS summary statistics were obtained for multiple cognitive and Alzheimer’s disease–related outcomes. Cognitive performance outcomes included general cognitive function, fluid intelligence, and prospective memory, which capture different domains of cognitive ability and reflect early functional changes relevant to neurodegeneration.
+Six AD–related phenotypes were included as outcomes: AD progression score, hippocampal volume in AD, cortical amyloid deposition in AD, average cortical thickness, left caudate volume, and right caudate volume. These outcomes represent key aspects of AD pathology and brain structural changes.
 
-Neuroimaging-derived outcomes were used as intermediate biomarkers of Alzheimer’s disease pathology. These included average cortical thickness and caudate volume, which represent structural brain changes associated with cognitive aging and neurodegeneration. In addition, Alzheimer’s disease–specific outcomes included an Alzheimer’s disease progression score, hippocampal volume, and amyloid-β deposition, which reflect key biological processes involved in Alzheimer’s disease development and progression.
-
-All outcome GWAS data were derived from large population-based studies of European ancestry. These outcomes were selected to capture both clinical-level cognitive performance and biological markers across different stages of Alzheimer’s disease, allowing a more comprehensive assessment of the potential causal effects of fatty acid composition on cognitive function and AD-related phenotypes.
+All outcome GWAS data were derived from large population-based studies of European ancestry. These outcomes were selected to capture both clinical-level cognitive performance and biological markers across different stages of AD, allowing a more comprehensive assessment of the potential causal effects of fatty acid composition on cognitive function and AD-related phenotypes.
 
 ### Mendelian Randomization Design
 
-A two-sample Mendelian randomization framework was employed. Single nucleotide polymorphisms (SNPs) associated with each omega-3 fatty acids exposure at genome-wide significance (P \< 5×10⁻⁸) were selected as candidate instrumental variables. Linkage disequilibrium clumping was applied to ensure independence among instruments. Weak instruments were excluded using F-statistics, with SNPs having F \< 10 removed prior to analysis.
+A two-sample MR framework was employed. Single nucleotide polymorphisms (SNPs) associated with each omega-3 fatty acids exposure at genome-wide significance (P \< 5×10⁻⁸) were selected as candidate instrumental variables. Linkage disequilibrium clumping was applied to ensure independence among instruments. Weak instruments were excluded using F-statistics, with SNPs having F \< 10 removed prior to analysis.
 
 Primary causal estimates were obtained using the inverse-variance weighted (IVW) method. Heterogeneity among genetic instruments was assessed using Cochran’s Q test. When evidence of heterogeneity was detected (P \< 0.05), the IVW random-effects model was applied. When heterogeneity was not significant (P ≥ 0.05), the IVW fixed-effects model was used. Additional MR methods, including weighted median and MR-Egger regression, were performed as sensitivity analyses to assess the robustness of the findings.
 
@@ -128,12 +126,6 @@ weak_snps %>% select(SNP, beta.exposure, se.exposure, F_stat) %>% arrange(F_stat
 ```
 
 ```{r}
-outcome_dat_cognitive_function <- extract_outcome_data(snps=exposure_dat_omega_3$SNP, c("ieu-b-4838"))
-
-outcome_dat_fluid_intelligence <- extract_outcome_data(snps=exposure_dat_omega_3$SNP, c("ukb-b-5238"))
-
-outcome_dat_prospective_memory <- extract_outcome_data(snps=exposure_dat_omega_3$SNP, c("ukb-b-4282"))
-
 outcome_dat_ft <- read_outcome_data(filename =  "E:/MR/cognitive&AD/cognitive&AD/outcome/FT/FT.txt", snps = exposure_dat_omega_3$SNP, snp_col = "SNP", beta_col = "BETA1",se_col = "SE", effect_allele_col = "A1",other_allele_col = "A2", pval_col = "P", samplesize_col = "N",sep = " ",eaf_col = "FREQ1")
 
 outcome_dat_left_caudate <- read_outcome_data(filename = "E:/MR/GCST90085825_buildGRCh38.tsv/GCST90085825_buildGRCh38.tsv", snps = exposure_dat_omega_3$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
@@ -142,24 +134,6 @@ outcome_dat_right_caudate <- read_outcome_data(filename = "E:/MR/GCST90085866_bu
 ```
 
 ```{r}
-dat_cognitive_function <- harmonise_data(
-  exposure_dat = exposure_dat_omega_3,
-  outcome_dat = outcome_dat_cognitive_function,
-  action = 2
-)
-
-dat_fluid_intelligence <- harmonise_data(
-  exposure_dat = exposure_dat_omega_3,
-  outcome_dat = outcome_dat_fluid_intelligence,
-  action = 2
-)
-
-dat_prospective_memory <- harmonise_data(
-  exposure_dat = exposure_dat_omega_3,
-  outcome_dat = outcome_dat_prospective_memory,
-  action = 2
-)
-
 dat_ft <- harmonise_data(
   exposure_dat = exposure_dat_omega_3,
   outcome_dat = outcome_dat_ft
@@ -180,57 +154,6 @@ dat_n3_dps <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n3_dps.csv")
 dat_n3_hippo <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n3_hippo.csv")
 
 dat_n3_abeta <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n3_abeta.csv")
-```
-
-```{r}
-res <- mr(dat_cognitive_function,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_cognitive_function)
-mr_pleiotropy_test(dat_cognitive_function)
-res_single <- mr_singlesnp(dat_cognitive_function)
-res_loo <- mr_leaveoneout(dat_cognitive_function)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_cognitive_function)
-res_single <- mr_singlesnp(dat_cognitive_function)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_cognitive_function)
-```
-
-```{r}
-res <- mr(dat_fluid_intelligence,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_fluid_intelligence)
-mr_pleiotropy_test(dat_fluid_intelligence)
-res_single <- mr_singlesnp(dat_fluid_intelligence)
-res_loo <- mr_leaveoneout(dat_fluid_intelligence)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_fluid_intelligence)
-res_single <- mr_singlesnp(dat_fluid_intelligence)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_fluid_intelligence)
-```
-
-```{r}
-res <- mr(dat_prospective_memory,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_prospective_memory)
-mr_pleiotropy_test(dat_prospective_memory)
-res_single <- mr_singlesnp(dat_prospective_memory)
-res_loo <- mr_leaveoneout(dat_prospective_memory)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_prospective_memory)
-res_single <- mr_singlesnp(dat_prospective_memory)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_prospective_memory)
 ```
 
 ```{r}
@@ -387,12 +310,6 @@ weak_snps %>% select(SNP, beta.exposure, se.exposure, F_stat) %>% arrange(F_stat
 ```
 
 ```{r}
-outcome_dat_cognitive_function <- extract_outcome_data(snps=exposure_dat_dha$SNP, c("ieu-b-4838"))
-
-outcome_dat_fluid_intelligence <- extract_outcome_data(snps=exposure_dat_dha$SNP, c("ukb-b-5238"))
-
-outcome_dat_prospective_memory <- extract_outcome_data(snps=exposure_dat_dha$SNP, c("ukb-b-4282"))
-
 outcome_dat_ft <- read_outcome_data(filename =  "E:/MR/cognitive&AD/cognitive&AD/outcome/FT/FT.txt", snps = exposure_dat_dha$SNP, snp_col = "SNP", beta_col = "BETA1",se_col = "SE", effect_allele_col = "A1",other_allele_col = "A2", pval_col = "P", samplesize_col = "N",sep = " ",eaf_col = "FREQ1")
 
 outcome_dat_left_caudate <- read_outcome_data(filename = "E:/MR/GCST90085825_buildGRCh38.tsv/GCST90085825_buildGRCh38.tsv", snps = exposure_dat_dha$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
@@ -401,24 +318,6 @@ outcome_dat_right_caudate <- read_outcome_data(filename = "E:/MR/GCST90085866_bu
 ```
 
 ```{r}
-dat_cognitive_function <- harmonise_data(
-  exposure_dat = exposure_dat_dha,
-  outcome_dat = outcome_dat_cognitive_function,
-  action = 2
-)
-
-dat_fluid_intelligence <- harmonise_data(
-  exposure_dat = exposure_dat_dha,
-  outcome_dat = outcome_dat_fluid_intelligence,
-  action = 2
-)
-
-dat_prospective_memory <- harmonise_data(
-  exposure_dat = exposure_dat_dha,
-  outcome_dat = outcome_dat_prospective_memory,
-  action = 2
-)
-
 dat_ft <- harmonise_data(
   exposure_dat = exposure_dat_dha,
   outcome_dat = outcome_dat_ft
@@ -439,57 +338,6 @@ dat_dha_dps <- read_csv("E:/MR/cognitive&AD/cognitive&AD/DHAtotal_dps.csv")
 dat_dha_hippo <- read_csv("E:/MR/cognitive&AD/cognitive&AD/DHAtotal_hippo.csv")
 
 dat_dha_abeta <- read_csv("E:/MR/cognitive&AD/cognitive&AD/DHAtotal_abeta.csv")
-```
-
-```{r}
-res <- mr(dat_cognitive_function,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_cognitive_function)
-mr_pleiotropy_test(dat_cognitive_function)
-res_single <- mr_singlesnp(dat_cognitive_function)
-res_loo <- mr_leaveoneout(dat_cognitive_function)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_cognitive_function)
-res_single <- mr_singlesnp(dat_cognitive_function)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_cognitive_function)
-```
-
-```{r}
-res <- mr(dat_fluid_intelligence,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_fluid_intelligence)
-mr_pleiotropy_test(dat_fluid_intelligence)
-res_single <- mr_singlesnp(dat_fluid_intelligence)
-res_loo <- mr_leaveoneout(dat_fluid_intelligence)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_fluid_intelligence)
-res_single <- mr_singlesnp(dat_fluid_intelligence)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_fluid_intelligence)
-```
-
-```{r}
-res <- mr(dat_prospective_memory,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_prospective_memory)
-mr_pleiotropy_test(dat_prospective_memory)
-res_single <- mr_singlesnp(dat_prospective_memory)
-res_loo <- mr_leaveoneout(dat_prospective_memory)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_prospective_memory)
-res_single <- mr_singlesnp(dat_prospective_memory)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_prospective_memory)
 ```
 
 ```{r}
@@ -646,12 +494,6 @@ weak_snps %>% select(SNP, beta.exposure, se.exposure, F_stat) %>% arrange(F_stat
 ```
 
 ```{r}
-outcome_dat_cognitive_function <- extract_outcome_data(snps=exposure_dat_n6n3$SNP, c("ieu-b-4838"))
-
-outcome_dat_fluid_intelligence <- extract_outcome_data(snps=exposure_dat_n6n3$SNP, c("ukb-b-5238"))
-
-outcome_dat_prospective_memory <- extract_outcome_data(snps=exposure_dat_n6n3$SNP, c("ukb-b-4282"))
-
 outcome_dat_ft <- read_outcome_data(filename =  "E:/MR/cognitive&AD/cognitive&AD/outcome/FT/FT.txt", snps = exposure_dat_n6n3$SNP, snp_col = "SNP", beta_col = "BETA1",se_col = "SE", effect_allele_col = "A1",other_allele_col = "A2", pval_col = "P", samplesize_col = "N",sep = " ",eaf_col = "FREQ1")
 
 outcome_dat_left_caudate <- read_outcome_data(filename = "E:/MR/GCST90085825_buildGRCh38.tsv/GCST90085825_buildGRCh38.tsv", snps = exposure_dat_n6n3$SNP, snp_col = "variant_id", beta_col = "beta",se_col = "standard_error", effect_allele_col = "effect_allele",other_allele_col = "other_allele", pval_col = "p_value", samplesize_col = "N",sep = "\t",eaf_col = "MAF")
@@ -660,24 +502,6 @@ outcome_dat_right_caudate <- read_outcome_data(filename = "E:/MR/GCST90085866_bu
 ```
 
 ```{r}
-dat_cognitive_function <- harmonise_data(
-  exposure_dat = exposure_dat_n6n3,
-  outcome_dat = outcome_dat_cognitive_function,
-  action = 2
-)
-
-dat_fluid_intelligence <- harmonise_data(
-  exposure_dat = exposure_dat_n6n3,
-  outcome_dat = outcome_dat_fluid_intelligence,
-  action = 2
-)
-
-dat_prospective_memory <- harmonise_data(
-  exposure_dat = exposure_dat_n6n3,
-  outcome_dat = outcome_dat_prospective_memory,
-  action = 2
-)
-
 dat_ft <- harmonise_data(
   exposure_dat = exposure_dat_n6n3,
   outcome_dat = outcome_dat_ft
@@ -698,57 +522,6 @@ dat_n6n3_dps <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n6n3_dps.csv")
 dat_n6n3_hippo <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n6n3_hippo.csv")
 
 dat_n6n3_abeta <- read_csv("E:/MR/cognitive&AD/cognitive&AD/n6n3_abeta.csv")
-```
-
-```{r}
-res <- mr(dat_cognitive_function,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_cognitive_function)
-mr_pleiotropy_test(dat_cognitive_function)
-res_single <- mr_singlesnp(dat_cognitive_function)
-res_loo <- mr_leaveoneout(dat_cognitive_function)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_cognitive_function)
-res_single <- mr_singlesnp(dat_cognitive_function)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_cognitive_function)
-```
-
-```{r}
-res <- mr(dat_fluid_intelligence,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_fluid_intelligence)
-mr_pleiotropy_test(dat_fluid_intelligence)
-res_single <- mr_singlesnp(dat_fluid_intelligence)
-res_loo <- mr_leaveoneout(dat_fluid_intelligence)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_fluid_intelligence)
-res_single <- mr_singlesnp(dat_fluid_intelligence)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_fluid_intelligence)
-```
-
-```{r}
-res <- mr(dat_prospective_memory,method_list = c("mr_egger_regression","mr_weighted_median","mr_ivw_fe","mr_ivw_mre"))
-res$lower <- res$b - 1.96 * res$se
-res$upper <- res$b + 1.96 * res$se
-res$OR <- exp(res$b)
-res
-mr_heterogeneity(dat_prospective_memory)
-mr_pleiotropy_test(dat_prospective_memory)
-res_single <- mr_singlesnp(dat_prospective_memory)
-res_loo <- mr_leaveoneout(dat_prospective_memory)
-mr_leaveoneout_plot(res_loo)
-p1 <- mr_scatter_plot(res, dat_prospective_memory)
-res_single <- mr_singlesnp(dat_prospective_memory)
-mr_funnel_plot(res_single)
-mr_scatter_plot(res, dat_prospective_memory)
 ```
 
 ```{r}
@@ -859,30 +632,40 @@ For the three omega-3–related exposure traits—ratio of omega-3 fatty acids t
 
 ### Ratio of omega-3 fatty acids to total PUFAs
 
-For the ratio of omega-3 fatty acids to total PUFAs, IVW analyses showed no statistically significant associations with global cognitive function, fluid intelligence, prospective memory, or three Alzheimer’s disease (AD)–related biomarkers.
+For the ratio of omega-3 fatty acids to total fatty acids, IVW analyses showed no statistically significant associations with AD progression score, hippocampal volume, or cortical amyloid deposition. However, a modest positive association with average cortical thickness was observed. In addition, negative associations with caudate volume were suggested, particularly for the right caudate volume, where IVW estimates reached statistical significance. Weighted median results for caudate volume were statistically significant and showed consistent directions.
 
-However, positive associations were observed for average cortical thickness, with the IVW fixed-effects estimate indicating a modest increase in cortical thickness (β = 0.005, 95% CI: 0.000 to 0.010, *P* = 0.042). For subcortical structures, negative associations with caudate volume were suggested, particularly for the right caudate volume, where the IVW random-effects estimate reached statistical significance (β = −37.21, 95% CI: −71.80 to −2.62, *P* = 0.035). Weighted median estimates were directionally consistent and statistically significant for both left and right caudate volumes, supporting a potential inverse relationship. No significant associations were observed for AD progression score or hippocampal volume in AD, although effect directions were generally consistent across MR methods.
+These findings suggest that omega-3 fatty acids may be more strongly related to brain structural features than to classical AD pathological markers. The consistent negative associations with caudate volume across IVW and weighted median analyses support the robustness of this result. In contrast, the lack of association with amyloid deposition and hippocampal volume indicates that omega-3 effects may not directly target core AD pathology.
 
 ### Ratio of docosahexaenoic acid (DHA) to total PUFAs
 
-For the ratio of DHA to total PUFAs, IVW analyses indicated no significant association with overall cognitive function or prospective memory. In contrast, fluid intelligence showed a suggestive negative association, with the MR Egger and weighted median estimates reaching statistical significance, while the IVW random-effects estimate was not statistically significant, although the direction was consistent.
+For the ratio of DHA to total fatty acids, IVW analyses indicated no significant associations with hippocampal volume or cortical amyloid deposition. In contrast, average cortical thickness showed a consistent positive association across IVW, weighted median, and MR Egger analyses, suggesting a robust relationship. Negative associations between DHA and caudate volume were observed, with weighted median estimates reaching statistical significance, while IVW estimates showed similar but weaker effects. In addition, the IVW fixed-effects analysis showed a positive association between DHA and Alzheimer’s disease progression score.
 
-Notably, average cortical thickness demonstrated a consistent and statistically significant positive association across all three MR methods, suggesting a robust relationship between higher cortical thickness and higher DHA level.
-
-For caudate volume, negative associations were observed, particularly for the right caudate volume, where the weighted median estimate was statistically significant (β = −29.39, 95% CI: −52.49 to −6.30, *P* = 0.013), while IVW estimates showed similar directions but did not consistently reach significance. A positive association with AD progression score was observed in the IVW fixed-effects model (β = 0.086, 95% CI: 0.021 to 0.151, *P* = 0.009), whereas results for hippocampal volume and cortical amyloid deposition in AD were not statistically significant across methods.
+Compared with total omega-3 fatty acids, DHA showed more consistent associations with cortical thickness, highlighting its potential importance for cortical integrity. The agreement across multiple MR methods strengthens the credibility of this finding. Although IVW estimates for caudate volume were not always statistically significant, the consistent direction and significant weighted median results suggest that DHA may influence subcortical brain structures.
 
 ### Ratio of omega-6 to omega-3 fatty acids
 
-For the ratio of omega-6 to omega-3 fatty acids, IVW analyses did not identify significant associations with global cognitive function, fluid intelligence, prospective memory, or cortical thickness. However, positive associations with caudate volume were observed, particularly for the right caudate volume, where both weighted median (β = 42.83, 95% CI: 11.83 to 73.84, *P* = 0.007) and IVW random-effects estimates (β = 32.16, 95% CI: 0.56 to 63.76, *P* = 0.046) reached statistical significance.
+For the ratio of omega-6 to omega-3 fatty acids, IVW analyses did not identify significant associations with hippocampal volume or cortical amyloid deposition. However, positive associations with caudate volume were observed, particularly for the right caudate volume, where both IVW random-effects and weighted median estimates were statistically significant.
 
-For AD-related outcomes, IVW estimates suggested inverse but non-significant associations with AD progression score, while weighted median and MR Egger results showed consistent directions but did not reach statistical significance. No significant associations were observed for hippocampal volume or cortical amyloid deposition in AD.
+These results suggest that a higher omega-6 to omega-3 ratio may be associated with unfavorable changes in caudate volume. The consistency between IVW and weighted median estimates supports the robustness of this association. Similar to the omega-3 and DHA analyses, no clear associations were observed with amyloid-related outcomes, further indicating that fatty acid balance may primarily affect brain structure rather than amyloid pathology.
+
+![](images/clipboard-3243825488.png)
+
+![](images/clipboard-2896046279.png)
+
+![](images/clipboard-3375237954.png)
+
+### Overall interpretation
+
+Across all analyses, IVW results showed limited evidence for strong causal effects on classical AD pathological markers. However, consistent associations were observed for brain structural phenotypes, particularly cortical thickness and caudate volume. In several instances, weighted median estimates were statistically significant when IVW estimates were not, suggesting that these findings are relatively robust to potential pleiotropy.
+
+Taken together, these patterns suggest that omega-3 fatty acids, especially DHA, may influence brain structural integrity rather than directly modifying amyloid accumulation. The consistency of effect directions across MR methods supports the biological plausibility of these associations, while the generally modest effect sizes indicate that omega-3–related effects are likely to be subtle.
 
 ## Conclusion
 
-In this Mendelian randomization study, we examined the potential causal effects of different polyunsaturated fatty acid ratios on cognitive performance and Alzheimer’s disease–related phenotypes. Overall, the IVW analyses provided limited evidence for strong causal effects on global cognitive function or most AD biomarkers. However, several consistent and biologically plausible associations were observed across specific outcomes.
+In this MR study, we investigated the potential causal effects of omega-3 fatty acid balance, with a particular focus on DHA, on AD–related phenotypes. Overall, IVW analyses showed limited evidence for strong causal effects on classical AD pathological markers, such as hippocampal volume and cortical amyloid deposition. However, consistent associations were observed for brain structural measures, especially average cortical thickness and caudate volume.
 
-Notably, higher ratios of omega-3 fatty acids and DHA to total PUFAs were positively associated with average cortical thickness, with results remaining consistent across multiple MR methods. In addition, DHA-related exposures and the omega-6 to omega-3 ratio showed associations with caudate volume, suggesting that fatty acid composition may influence subcortical brain structures involved in cognitive and motor processes. While IVW estimates were not always statistically significant, directionally consistent and significant findings from the weighted median method support the robustness of these associations under different modeling assumptions.
+From a biological perspective, these findings are plausible. Omega-3 fatty acids, particularly DHA, are major components of neuronal cell membranes and contribute to membrane fluidity and synaptic function. Higher DHA levels may help maintain cortical structure by supporting neuronal integrity and reducing age-related cortical thinning. In addition, omega-3 fatty acids are known to have anti-inflammatory properties, which may indirectly protect brain tissue from chronic neuroinflammation that contributes to neurodegeneration.
 
-In contrast, associations with Alzheimer’s disease progression, hippocampal volume, and cortical amyloid deposition were generally weak or non-significant, indicating that fatty acid ratios may have a more pronounced role in brain structure and cognitive-related traits rather than direct AD pathological processes.
+The observed associations with caudate volume suggest that omega-3 fatty acids may also influence subcortical brain regions involved in cognitive and motor processes. Changes in fatty acid composition could affect neuronal metabolism and signaling in these regions, leading to measurable structural differences. In contrast, the lack of strong associations with amyloid deposition implies that omega-3 fatty acids may not directly modify amyloid-related pathways, but instead exert their effects through structural and neuroprotective mechanisms.
 
-To conclude, these findings suggest that the balance of dietary fatty acids, particularly DHA relative to total PUFAs, may play a modest but meaningful role in maintaining brain structural integrity. Further studies using larger GWAS datasets and longitudinal neuroimaging outcomes are warranted to clarify the mechanisms underlying these relationships and their relevance for cognitive aging and neurodegenerative disease.
+In summary, this study suggests that omega-3 fatty acids, especially DHA, may play a modest role in maintaining brain structural integrity rather than directly altering core Alzheimer’s disease pathology. Further studies using larger genetic datasets and more detailed neuroimaging phenotypes are needed to better understand the biological pathways linking omega-3 fatty acids to brain structure and Alzheimer’s disease progression.
